@@ -1,0 +1,10 @@
+Python Developer
+
+Required Skills:
+Python
+SQL
+Django
+Git
+HTML
+CSS
+Machine Learning

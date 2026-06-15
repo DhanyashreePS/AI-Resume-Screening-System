@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Results</title>
+</head>
+<body>
+
+<h1>Candidate Analysis Report</h1>
+
+<h2>Candidate Details</h2>
+
+<p><b>Name:</b> {{ name }}</p>
+<p><b>Email:</b> {{ email }}</p>
+<p><b>Phone:</b> {{ phone }}</p>
+
+<h2>Detected Skills</h2>
+
+<ul>
+{% for skill in skills %}
+<li>{{ skill }}</li>
+{% endfor %}
+</ul>
+
+<h2>Match Score</h2>
+
+<p>{{ score }}%</p>
+
+<h2>Matched Skills</h2>
+
+<ul>
+{% for skill in matched %}
+<li>{{ skill }}</li>
+{% endfor %}
+</ul>
+
+<h2>Missing Skills</h2>
+
+<ul>
+{% for skill in missing %}
+<li>{{ skill }}</li>
+{% endfor %}
+</ul>
+
+<h2>Interview Questions</h2>
+
+{% for skill, qlist in questions.items() %}
+
+<h3>{{ skill }}</h3>
+
+<ul>
+
+{% for q in qlist %}
+<li>{{ q }}</li>
+{% endfor %}
+
+</ul>
+
+{% endfor %}
+
+</body>
+</html>

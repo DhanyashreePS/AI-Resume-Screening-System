@@ -10,6 +10,8 @@ from utils.candidate_extractor import (
 )
 from utils.job_matcher import calculate_match
 from utils.interview_generator import generate_questions
+from utils.database import save_candidate
+from utils.database import get_all_candidates
 
 app = Flask(__name__)
 
@@ -64,6 +66,14 @@ def analyze():
     )
 
     questions = generate_questions(skills)
+    print("Saving candidate:", name)
+    save_candidate(
+    name,
+    email,
+    phone,
+    skills,
+    match_result["score"]
+    )
 
     return render_template(
         "results.html",
@@ -79,11 +89,15 @@ def analyze():
 @app.route("/dashboard")
 def dashboard():
 
-    candidates = [
-        {"name": "Dhanya", "score": 85},
-        {"name": "Rahul", "score": 72},
-        {"name": "Priya", "score": 91}
-    ]
+    rows = get_all_candidates()
+
+    candidates = []
+
+    for row in rows:
+        candidates.append({
+            "name": row[0],
+            "score": row[1]
+        })
 
     labels = [c["name"] for c in candidates]
     scores = [c["score"] for c in candidates]
@@ -94,7 +108,5 @@ def dashboard():
         labels=labels,
         scores=scores
     )
-
-
 if __name__ == "__main__":
     app.run(debug=True)

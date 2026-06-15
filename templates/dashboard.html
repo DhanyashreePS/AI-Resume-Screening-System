@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+<h1>Candidate Analytics Dashboard</h1>
+
+<canvas id="scoreChart"
+        width="600"
+        height="300"></canvas>
+
+<script>
+
+const labels = {{ labels|tojson }};
+const scores = {{ scores|tojson }};
+
+new Chart(
+    document.getElementById("scoreChart"),
+    {
+        type: "bar",
+
+        data: {
+            labels: labels,
+
+            datasets: [{
+                label: "Candidate Score",
+
+                data: scores
+            }]
+        }
+    }
+);
+
+</script>
+
+<h2>Candidate Ranking</h2>
+
+<table border="1">
+
+<tr>
+    <th>Rank</th>
+    <th>Name</th>
+    <th>Score</th>
+</tr>
+
+{% for candidate in candidates %}
+
+<tr>
+    <td>{{ loop.index }}</td>
+    <td>{{ candidate.name }}</td>
+    <td>{{ candidate.score }}</td>
+</tr>
+
+{% endfor %}
+
+</table>
+
+</body>
+</html>

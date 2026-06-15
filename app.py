@@ -76,6 +76,24 @@ def analyze():
         missing=match_result["missing_skills"],
         questions=questions
     )
+@app.route("/dashboard")
+def dashboard():
+
+    candidates = [
+        {"name": "Dhanya", "score": 85},
+        {"name": "Rahul", "score": 72},
+        {"name": "Priya", "score": 91}
+    ]
+
+    labels = [c["name"] for c in candidates]
+    scores = [c["score"] for c in candidates]
+
+    return render_template(
+        "dashboard.html",
+        candidates=candidates,
+        labels=labels,
+        scores=scores
+    )
 
 
 if __name__ == "__main__":

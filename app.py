@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request
+from flask import Response
 import os
-
+import csv
 from utils.resume_parser import extract_text_from_pdf
 from utils.skill_extractor import extract_skills
 from utils.candidate_extractor import (
@@ -108,5 +109,29 @@ def dashboard():
         labels=labels,
         scores=scores
     )
+    
+@app.route("/export")
+def export_csv():
+
+    rows = get_all_candidates()
+
+    def generate():
+        data = [["Candidate Name", "Score"]]
+
+        for row in rows:
+            data.append([row[0], row[1]])
+
+        for row in data:
+            yield ",".join(map(str, row)) + "\n"
+
+    return Response(
+        generate(),
+        mimetype="text/csv",
+        headers={
+            "Content-Disposition":
+            "attachment; filename=candidates.csv"
+        }
+    )
+    
 if __name__ == "__main__":
     app.run(debug=True)

@@ -9,7 +9,9 @@
 <body>
 
 <h1>Candidate Analytics Dashboard</h1>
-
+<a href="/export">
+    <button>Export CSV</button>
+</a>
 <canvas id="scoreChart"
         width="600"
         height="300"></canvas>
@@ -18,6 +20,7 @@
 
 const labels = {{ labels|tojson }};
 const scores = {{ scores|tojson }};
+
 
 new Chart(
     document.getElementById("scoreChart"),

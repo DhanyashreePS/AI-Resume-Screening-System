@@ -2,6 +2,7 @@ from flask import Flask, render_template, request
 from flask import Response
 import os
 import csv
+from flask_mail import Mail, Message
 from flask import redirect
 from utils.tfidf_matcher import calculate_similarity
 from utils.database import update_status
@@ -19,10 +20,35 @@ from utils.database import get_all_candidates
 
 app = Flask(__name__)
 
+app.config["MAIL_SERVER"] = "smtp.gmail.com"
+app.config["MAIL_PORT"] = 587
+app.config["MAIL_USE_TLS"] = True
+app.config["MAIL_USERNAME"] = "your_email@gmail.com"
+app.config["MAIL_PASSWORD"] = "your_app_password"
+
+mail = Mail(app)
+
 UPLOAD_FOLDER = "resumes"
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
+def send_shortlist_email(email):
 
+    msg = Message(
+        "Application Status Update",
+        sender=app.config["MAIL_USERNAME"],
+        recipients=[email]
+    )
+
+    msg.body = """Congratulations!
+
+You have been shortlisted for the next round.
+
+Regards,
+HR Team
+"""
+
+    mail.send(msg)
+    
 @app.route("/")
 def home():
     return render_template("index.html")
@@ -148,6 +174,7 @@ def export_csv():
 def shortlist(id):
 
     update_status(id, "Shortlisted")
+    send_shortlist_email(email)
 
     return redirect("/dashboard")
 
@@ -158,6 +185,8 @@ def reject(id):
     update_status(id, "Rejected")
 
     return redirect("/dashboard")
-    
+
+
+
 if __name__ == "__main__":
     app.run(debug=True)

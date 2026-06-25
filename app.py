@@ -2,6 +2,8 @@ from flask import Flask, render_template, request
 from flask import Response
 import os
 import csv
+from flask import redirect
+from utils.database import update_status
 from utils.resume_parser import extract_text_from_pdf
 from utils.skill_extractor import extract_skills
 from utils.candidate_extractor import (
@@ -96,12 +98,15 @@ def dashboard():
 
     for row in rows:
         candidates.append({
-            "name": row[0],
-            "score": row[1]
-        })
+        "id": row[0],
+        "name": row[1],
+        "score": row[2],
+        "status": row[3]
+    })
 
     labels = [c["name"] for c in candidates]
     scores = [c["score"] for c in candidates]
+    print(candidates)
 
     return render_template(
         "dashboard.html",
@@ -114,6 +119,7 @@ def dashboard():
 def export_csv():
 
     rows = get_all_candidates()
+    print("Rows:", rows)
 
     def generate():
         data = [["Candidate Name", "Score"]]
@@ -132,6 +138,20 @@ def export_csv():
             "attachment; filename=candidates.csv"
         }
     )
+@app.route("/shortlist/<int:id>")
+def shortlist(id):
+
+    update_status(id, "Shortlisted")
+
+    return redirect("/dashboard")
+
+
+@app.route("/reject/<int:id>")
+def reject(id):
+
+    update_status(id, "Rejected")
+
+    return redirect("/dashboard")
     
 if __name__ == "__main__":
     app.run(debug=True)

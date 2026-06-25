@@ -16,7 +16,8 @@ def create_database():
         email TEXT,
         phone TEXT,
         skills TEXT,
-        score INTEGER
+        score INTEGER,
+        status TEXT DEFAULT 'Pending'
     )
     """)
 
@@ -36,17 +37,32 @@ def save_candidate(
 
     cursor.execute("""
     INSERT INTO candidates
-    (name,email,phone,skills,score)
+    (name,email,phone,skills,score,status)
 
-    VALUES(?,?,?,?,?)
+    VALUES(?,?,?,?,?,?)
     """,
     (
         name,
         email,
         phone,
         ",".join(skills),
-        score
+        score,
+        "Pending"
     ))
+
+    conn.commit()
+    conn.close()
+
+def update_status(candidate_id, status):
+
+    conn = sqlite3.connect(DB_PATH)
+
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "UPDATE candidates SET status=? WHERE id=?",
+        (status, candidate_id)
+    )
 
     conn.commit()
     conn.close()
@@ -58,7 +74,7 @@ def get_all_candidates():
     cursor = conn.cursor()
 
     cursor.execute("""
-    SELECT name, score
+    SELECT id,name, score,status
     FROM candidates
     ORDER BY score DESC
     """)

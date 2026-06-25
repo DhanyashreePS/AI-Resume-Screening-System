@@ -16,6 +16,8 @@
         width="600"
         height="300"></canvas>
 
+        
+
 <script>
 
 const labels = {{ labels|tojson }};
@@ -49,6 +51,8 @@ new Chart(
     <th>Rank</th>
     <th>Name</th>
     <th>Score</th>
+    <th>Status</th>
+    <th>Action</th>
 </tr>
 
 {% for candidate in candidates %}
@@ -57,10 +61,20 @@ new Chart(
     <td>{{ loop.index }}</td>
     <td>{{ candidate.name }}</td>
     <td>{{ candidate.score }}</td>
+    <td>{{ candidate.status }}</td>
+
+    <td>
+        <a href="/shortlist/{{ candidate.id }}">
+            <button>Shortlist</button>
+        </a>
+
+        <a href="/reject/{{ candidate.id }}">
+            <button>Reject</button>
+        </a>
+    </td>
 </tr>
 
 {% endfor %}
-
 </table>
 
 </body>

@@ -3,6 +3,7 @@ from flask import Response
 import os
 import csv
 from flask import redirect
+from utils.tfidf_matcher import calculate_similarity
 from utils.database import update_status
 from utils.resume_parser import extract_text_from_pdf
 from utils.skill_extractor import extract_skills
@@ -46,6 +47,12 @@ def analyze():
     file.save(file_path)
 
     text = extract_text_from_pdf(file_path)
+    job_description = """Looking for a Python developer with Flask, SQL, Git, HTML, CSS and JavaScript."""
+    similarity_score = calculate_similarity(
+    text,
+    job_description)
+
+    print("TF-IDF Similarity:", similarity_score)
 
     skills = extract_skills(text)
 
@@ -87,7 +94,8 @@ def analyze():
         score=match_result["score"],
         matched=match_result["matched_skills"],
         missing=match_result["missing_skills"],
-        questions=questions
+        questions=questions,
+        similarity_score=similarity_score
     )
 @app.route("/dashboard")
 def dashboard():

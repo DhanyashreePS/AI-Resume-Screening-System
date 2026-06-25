@@ -1,12 +1,16 @@
-import sqlite3
+from utils.tfidf_matcher import calculate_similarity
 
-conn = sqlite3.connect("data/resume_screening.db")
+resume = """
+Python developer with Flask, SQL and REST APIs.
+"""
 
-cursor = conn.cursor()
+job_description = """
+Looking for a Python backend developer with database skills.
+"""
 
-cursor.execute("PRAGMA table_info(candidates)")
+score = calculate_similarity(
+    resume,
+    job_description
+)
 
-for row in cursor.fetchall():
-    print(row)
-
-conn.close()
+print("Similarity Score:", score)

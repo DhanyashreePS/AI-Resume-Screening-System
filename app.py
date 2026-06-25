@@ -47,10 +47,8 @@ def analyze():
     file.save(file_path)
 
     text = extract_text_from_pdf(file_path)
-    job_description = """Looking for a Python developer with Flask, SQL, Git, HTML, CSS and JavaScript."""
-    similarity_score = calculate_similarity(
-    text,
-    job_description)
+    job_description = request.form["job_description"]    
+    similarity_score = calculate_similarity(text,job_description)
 
     print("TF-IDF Similarity:", similarity_score)
 

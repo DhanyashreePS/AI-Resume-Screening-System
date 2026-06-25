@@ -7,12 +7,29 @@
 
     <h1>AI Resume Screening System</h1>
 
-    <form action="/analyze" method="POST"
+    <form action="/analyze"
+          method="POST"
           enctype="multipart/form-data">
+
+        <label>Upload Resume:</label>
+        <br>
 
         <input type="file"
                name="resume"
                required>
+
+        <br><br>
+
+        <label>Job Description:</label>
+        <br>
+
+        <textarea
+            name="job_description"
+            rows="8"
+            cols="60"
+            placeholder="Enter the job description here..."
+            required>
+        </textarea>
 
         <br><br>
 

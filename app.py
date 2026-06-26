@@ -2,10 +2,12 @@ from flask import Flask, render_template, request
 from flask import Response
 import os
 import csv
+from flask import send_file
+from utils.pdf_generator import generate_pdf
 from flask_mail import Mail, Message
 from flask import redirect
 from utils.tfidf_matcher import calculate_similarity
-from utils.database import update_status
+from utils.database import clear_db, update_status
 from utils.resume_parser import extract_text_from_pdf
 from utils.skill_extractor import extract_skills
 from utils.candidate_extractor import (
@@ -19,6 +21,7 @@ from utils.database import save_candidate
 from utils.database import get_all_candidates
 
 app = Flask(__name__)
+latest_report = {}
 
 app.config["MAIL_SERVER"] = "smtp.gmail.com"
 app.config["MAIL_PORT"] = 587
@@ -108,7 +111,19 @@ def analyze():
     skills,
     match_result["score"]
     )
+    
+    global latest_report
 
+    latest_report = {
+    "name": name,
+    "email": email,
+    "phone": phone,
+    "skills": skills,
+    "score": match_result["score"],
+    "similarity_score": similarity_score,
+    "matched": match_result["matched_skills"],
+    "missing": match_result["missing_skills"]
+}
     return render_template(
         "results.html",
         name=name,
@@ -123,8 +138,11 @@ def analyze():
     )
 @app.route("/dashboard")
 def dashboard():
+    search = request.args.get("search", "").lower()
+    status = request.args.get("status", "")
 
     rows = get_all_candidates()
+    
 
     candidates = []
 
@@ -135,17 +153,50 @@ def dashboard():
         "score": row[2],
         "status": row[3]
     })
+    if search:
+        candidates = [
+            c for c in candidates
+            if search in c["name"].lower()
+        ]
+
+    # Filter by status
+    if status:
+        candidates = [
+            c for c in candidates
+            if c["status"] == status
+        ]
 
     labels = [c["name"] for c in candidates]
     scores = [c["score"] for c in candidates]
     print(candidates)
+    
+    total_candidates = len(candidates)
+
+    shortlisted = sum(
+        1 for c in candidates
+        if c["status"] == "Shortlisted"
+    )
+
+    pending = sum(
+        1 for c in candidates
+        if c["status"] == "Pending"
+    )
+
+    rejected = sum(
+        1 for c in candidates
+        if c["status"] == "Rejected"
+    )
 
     return render_template(
-        "dashboard.html",
-        candidates=candidates,
-        labels=labels,
-        scores=scores
-    )
+    "dashboard.html",
+    candidates=candidates,
+    labels=labels,
+    scores=scores,
+    total_candidates=total_candidates,
+    shortlisted=shortlisted,
+    pending=pending,
+    rejected=rejected
+)
     
 @app.route("/export")
 def export_csv():
@@ -170,23 +221,54 @@ def export_csv():
             "attachment; filename=candidates.csv"
         }
     )
+
 @app.route("/shortlist/<int:id>")
 def shortlist(id):
 
+    print("Shortlist clicked for ID:", id)
+
     update_status(id, "Shortlisted")
-    send_shortlist_email(email)
 
     return redirect("/dashboard")
 
-
 @app.route("/reject/<int:id>")
 def reject(id):
+
+    print("Reject clicked for ID:", id)
 
     update_status(id, "Rejected")
 
     return redirect("/dashboard")
 
 
+@app.route("/download_pdf")
+def download_pdf():
+
+    filename = "candidate_report.pdf"
+
+    generate_pdf(
+        filename,
+        latest_report["name"],
+        latest_report["email"],
+        latest_report["phone"],
+        latest_report["skills"],
+        latest_report["score"],
+        latest_report["similarity_score"],
+        latest_report["matched"],
+        latest_report["missing"]
+    )
+
+    return send_file(
+        filename,
+        as_attachment=True
+    )
+
+@app.route("/clear_db")
+def clear_database_route():
+
+    clear_db()
+
+    return redirect("/dashboard")
 
 if __name__ == "__main__":
     app.run(debug=True)

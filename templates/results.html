@@ -4,8 +4,10 @@
     <title>Results</title>
 </head>
 <body>
+    <div class="container mt-5">
 
-<h1>Candidate Analysis Report</h1>
+    <div class="card shadow p-4">
+<h1 class="text-primary">
 
 <h2>Candidate Details</h2>
 
@@ -58,5 +60,20 @@
 {% endfor %}
 <h3>TF-IDF Similarity Score</h3>
 <p>{{ similarity_score }}%</p>
+
+<br>
+
+<a href="/download_pdf"
+   class="btn btn-success">
+
+    Download PDF Report
+
+</a>  
+
+    </div>
+
+</div>
+
+
 </body>
 </html>

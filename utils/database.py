@@ -84,3 +84,15 @@ def get_all_candidates():
     conn.close()
 
     return rows
+
+def clear_db():
+
+    conn = sqlite3.connect(DB_PATH)
+
+    cursor = conn.cursor()
+
+    cursor.execute("DELETE FROM candidates")
+
+    conn.commit()
+
+    conn.close()

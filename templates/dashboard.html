@@ -22,6 +22,49 @@
     <h1 class="text-center text-primary mb-4">
         Candidate Analytics Dashboard
     </h1>
+    {% if latest_report %}
+
+<div class="card border-primary shadow mb-4">
+
+    <div class="card-header bg-primary text-white">
+
+        <h3>Latest Resume Analysis</h3>
+
+    </div>
+
+    <div class="card-body">
+
+        <p><b>Name:</b> {{ latest_report.name }}</p>
+
+        <p><b>Email:</b> {{ latest_report.email }}</p>
+
+        <p><b>Phone:</b> {{ latest_report.phone }}</p>
+
+        <p><b>Match Score:</b> {{ latest_report.score }}%</p>
+
+        <p><b>TF-IDF Similarity:</b> {{ latest_report.similarity_score }}%</p>
+
+        <h5>Matched Skills</h5>
+
+        <ul>
+        {% for skill in latest_report.matched %}
+            <li>{{ skill }}</li>
+        {% endfor %}
+        </ul>
+
+        <h5>Missing Skills</h5>
+
+        <ul>
+        {% for skill in latest_report.missing %}
+            <li>{{ skill }}</li>
+        {% endfor %}
+        </ul>
+
+    </div>
+
+</div>
+
+{% endif %}
 
     <!-- Statistics Cards -->
     <div class="row mb-4">
@@ -69,6 +112,9 @@
         <a href="/export" class="btn btn-warning">
             Export CSV
         </a>
+        <a href="/logout" class="btn btn-danger">
+    Logout
+</a>
     </div>
 
     <!-- Chart -->
@@ -227,7 +273,7 @@
             </tbody>
 
         </table>
-        <a href="/clear_database" class="btn btn-danger">
+        <a href="/clear_db" class="btn btn-danger">
     Clear All Candidates
 </a>
 

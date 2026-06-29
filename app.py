@@ -2,6 +2,7 @@ from flask import Flask, render_template, request
 from flask import Response
 import os
 import csv
+from flask import session
 from flask import send_file
 from utils.pdf_generator import generate_pdf
 from flask_mail import Mail, Message
@@ -21,6 +22,8 @@ from utils.database import save_candidate
 from utils.database import get_all_candidates
 
 app = Flask(__name__)
+
+app.secret_key = "resume_screening_secret"
 latest_report = {}
 
 app.config["MAIL_SERVER"] = "smtp.gmail.com"
@@ -54,11 +57,17 @@ HR Team
     
 @app.route("/")
 def home():
+
+    if not session.get("logged_in"):
+        return redirect("/login")
+
     return render_template("index.html")
 
 
 @app.route("/analyze", methods=["POST"])
 def analyze():
+    if not session.get("logged_in"):
+        return redirect("/login")
 
     if "resume" not in request.files:
         return "No file uploaded"
@@ -124,20 +133,12 @@ def analyze():
     "matched": match_result["matched_skills"],
     "missing": match_result["missing_skills"]
 }
-    return render_template(
-        "results.html",
-        name=name,
-        email=email,
-        phone=phone,
-        skills=skills,
-        score=match_result["score"],
-        matched=match_result["matched_skills"],
-        missing=match_result["missing_skills"],
-        questions=questions,
-        similarity_score=similarity_score
-    )
+    return redirect("/dashboard")
+    #return render_template("results.html", name=name,email=email,phone=phone,skills=skills,score=match_result["score"],matched=match_result["matched_skills"],missing=match_result["missing_skills"], questions=questions,similarity_score=similarity_score)
 @app.route("/dashboard")
 def dashboard():
+    if not session.get("logged_in"):
+        return redirect("/login")
     search = request.args.get("search", "").lower()
     status = request.args.get("status", "")
 
@@ -195,11 +196,15 @@ def dashboard():
     total_candidates=total_candidates,
     shortlisted=shortlisted,
     pending=pending,
-    rejected=rejected
+    rejected=rejected,
+    latest_report=latest_report
+
 )
     
 @app.route("/export")
 def export_csv():
+    if not session.get("logged_in"):
+        return redirect("/login")
 
     rows = get_all_candidates()
     print("Rows:", rows)
@@ -208,7 +213,7 @@ def export_csv():
         data = [["Candidate Name", "Score"]]
 
         for row in rows:
-            data.append([row[0], row[1]])
+            data.append([row[1], row[2]])
 
         for row in data:
             yield ",".join(map(str, row)) + "\n"
@@ -225,7 +230,8 @@ def export_csv():
 @app.route("/shortlist/<int:id>")
 def shortlist(id):
 
-    print("Shortlist clicked for ID:", id)
+    if not session.get("logged_in"):
+        return redirect("/login")
 
     update_status(id, "Shortlisted")
 
@@ -234,12 +240,19 @@ def shortlist(id):
 @app.route("/reject/<int:id>")
 def reject(id):
 
-    print("Reject clicked for ID:", id)
+    if not session.get("logged_in"):
+        return redirect("/login")
 
     update_status(id, "Rejected")
 
     return redirect("/dashboard")
 
+@app.route("/logout")
+def logout():
+
+    session.clear()
+
+    return redirect("/login")
 
 @app.route("/download_pdf")
 def download_pdf():
@@ -262,6 +275,26 @@ def download_pdf():
         filename,
         as_attachment=True
     )
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+
+    if request.method == "POST":
+
+        username = request.form["username"]
+        password = request.form["password"]
+
+        if username == "Dhanya" and password == "2006":
+
+            session["logged_in"] = True
+
+            return redirect("/")
+
+        else:
+
+            return "Invalid Username or Password"
+
+    return render_template("login.html")
 
 @app.route("/clear_db")
 def clear_database_route():

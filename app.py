@@ -131,7 +131,8 @@ def analyze():
     "score": match_result["score"],
     "similarity_score": similarity_score,
     "matched": match_result["matched_skills"],
-    "missing": match_result["missing_skills"]
+    "missing": match_result["missing_skills"],
+    "questions": questions
 }
     return redirect("/dashboard")
     #return render_template("results.html", name=name,email=email,phone=phone,skills=skills,score=match_result["score"],matched=match_result["matched_skills"],missing=match_result["missing_skills"], questions=questions,similarity_score=similarity_score)

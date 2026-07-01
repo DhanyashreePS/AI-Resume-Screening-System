@@ -19,8 +19,10 @@ from utils.candidate_extractor import (
 from utils.job_matcher import calculate_match
 from utils.interview_generator import generate_questions
 from utils.database import save_candidate
-from utils.database import get_all_candidates
-
+from utils.database import (
+    get_all_candidates,
+    get_candidate_by_id
+)
 app = Flask(__name__)
 
 app.secret_key = "resume_screening_secret"
@@ -136,6 +138,34 @@ def analyze():
 }
     return redirect("/dashboard")
     #return render_template("results.html", name=name,email=email,phone=phone,skills=skills,score=match_result["score"],matched=match_result["matched_skills"],missing=match_result["missing_skills"], questions=questions,similarity_score=similarity_score)
+@app.route("/candidate/<int:id>")
+def candidate_profile(id):
+
+    if not session.get("logged_in"):
+        return redirect("/login")
+
+    row = get_candidate_by_id(id)
+
+    if row is None:
+        return "Candidate not found"
+
+    candidate = {
+        "id": row[0],
+        "name": row[1],
+        "email": row[2],
+        "phone": row[3],
+        "skills": row[4].split(","),
+        "score": row[5],
+        "status": row[6]
+    }
+
+    return render_template(
+        "candidate_profile.html",
+        candidate=candidate
+    )
+
+
+
 @app.route("/dashboard")
 def dashboard():
     if not session.get("logged_in"):
@@ -150,11 +180,14 @@ def dashboard():
 
     for row in rows:
         candidates.append({
-        "id": row[0],
-        "name": row[1],
-        "score": row[2],
-        "status": row[3]
-    })
+    "id": row[0],
+    "name": row[1],
+    "email": row[2],
+    "phone": row[3],
+    "skills": row[4].split(","),
+    "score": row[5],
+    "status": row[6]
+})
     if search:
         candidates = [
             c for c in candidates

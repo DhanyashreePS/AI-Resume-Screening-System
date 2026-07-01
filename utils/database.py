@@ -10,15 +10,19 @@ def create_database():
     cursor = conn.cursor()
 
     cursor.execute("""
-    CREATE TABLE IF NOT EXISTS candidates(
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT,
-        email TEXT,
-        phone TEXT,
-        skills TEXT,
-        score INTEGER,
-        status TEXT DEFAULT 'Pending'
-    )
+    CREATE TABLE IF NOT EXISTS candidates (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT,
+    email TEXT,
+    phone TEXT,
+    skills TEXT,
+    score REAL,
+    similarity REAL,
+    matched_skills TEXT,
+    missing_skills TEXT,
+    interview_questions TEXT,
+    status TEXT
+)
     """)
 
     conn.commit()
@@ -74,7 +78,14 @@ def get_all_candidates():
     cursor = conn.cursor()
 
     cursor.execute("""
-    SELECT id,name, score,status
+    SELECT
+        id,
+        name,
+        email,
+        phone,
+        skills,
+        score,
+        status
     FROM candidates
     ORDER BY score DESC
     """)
@@ -84,6 +95,31 @@ def get_all_candidates():
     conn.close()
 
     return rows
+
+def get_candidate_by_id(id):
+
+    conn = sqlite3.connect(DB_PATH)
+
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT
+            id,
+            name,
+            email,
+            phone,
+            skills,
+            score,
+            status
+        FROM candidates
+        WHERE id=?
+    """, (id,))
+
+    row = cursor.fetchone()
+
+    conn.close()
+
+    return row
 
 def clear_db():
 

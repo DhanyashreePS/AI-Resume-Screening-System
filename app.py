@@ -61,7 +61,7 @@ def home():
     if not session.get("logged_in"):
         return redirect("/login")
 
-    return render_template("index.html")
+    return redirect("/dashboard")
 
 
 @app.route("/analyze", methods=["POST"])
@@ -300,7 +300,11 @@ def login():
 @app.route("/clear_db")
 def clear_database_route():
 
+    global latest_report
+
     clear_db()
+
+    latest_report = {}
 
     return redirect("/dashboard")
 

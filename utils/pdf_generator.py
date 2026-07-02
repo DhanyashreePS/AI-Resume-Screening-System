@@ -11,7 +11,8 @@ def generate_pdf(
     score,
     similarity_score,
     matched,
-    missing
+    missing,
+    questions
 ):
 
     pdf = SimpleDocTemplate(filename)

@@ -2,8 +2,10 @@ from flask import Flask, render_template, request
 from flask import Response
 import os
 import csv
+import json
 from flask import session
 from flask import send_file
+from utils.database import get_candidate_email
 from utils.pdf_generator import generate_pdf
 from flask_mail import Mail, Message
 from flask import redirect
@@ -26,6 +28,7 @@ from utils.database import (
 app = Flask(__name__)
 
 app.secret_key = "resume_screening_secret"
+global latest_report
 latest_report = {}
 
 app.config["MAIL_SERVER"] = "smtp.gmail.com"
@@ -120,8 +123,12 @@ def analyze():
     email,
     phone,
     skills,
-    match_result["score"]
-    )
+    match_result["score"],
+    similarity_score,
+    match_result["matched_skills"],
+    match_result["missing_skills"],
+    questions
+)
     
     global latest_report
 
@@ -163,7 +170,6 @@ def candidate_profile(id):
         "candidate_profile.html",
         candidate=candidate
     )
-
 
 
 @app.route("/dashboard")
@@ -244,10 +250,23 @@ def export_csv():
     print("Rows:", rows)
 
     def generate():
-        data = [["Candidate Name", "Score"]]
-
+        data = [[
+    "Name",
+    "Email",
+    "Phone",
+    "Skills",
+    "Score",
+    "Status"
+]]
         for row in rows:
-            data.append([row[1], row[2]])
+            data.append([
+        row[1],   # Name
+        row[2],   # Email
+        row[3],   # Phone
+        row[4].replace(",", " | "),   # Skills
+        row[5],   # Score
+        row[6]    # Status
+    ])
 
         for row in data:
             yield ",".join(map(str, row)) + "\n"
@@ -269,6 +288,11 @@ def shortlist(id):
 
     update_status(id, "Shortlisted")
 
+    email = get_candidate_email(id)
+
+    if email:
+        send_shortlist_email(email)
+
     return redirect("/dashboard")
 
 @app.route("/reject/<int:id>")
@@ -288,28 +312,48 @@ def logout():
 
     return redirect("/login")
 
-@app.route("/download_pdf")
-def download_pdf():
 
-    filename = "candidate_report.pdf"
+@app.route("/download_pdf/<int:id>")
+def download_pdf(id):
+
+    row = get_candidate_by_id(id)
+
+    if row is None:
+        return "Candidate not found"
+
+    candidate = {
+        "id": row[0],
+        "name": row[1],
+        "email": row[2],
+        "phone": row[3],
+        "skills": row[4].split(","),
+        "score": row[5],
+        "similarity_score": row[6],
+        "matched": row[7].split(",") if row[7] else [],
+        "missing": row[8].split(",") if row[8] else [],
+        "questions": json.loads(row[9]) if row[9] else {},
+        "status": row[10]
+    }
+
+    filename = f"{candidate['name']}_Report.pdf"
 
     generate_pdf(
         filename,
-        latest_report["name"],
-        latest_report["email"],
-        latest_report["phone"],
-        latest_report["skills"],
-        latest_report["score"],
-        latest_report["similarity_score"],
-        latest_report["matched"],
-        latest_report["missing"]
+        candidate["name"],
+        candidate["email"],
+        candidate["phone"],
+        candidate["skills"],
+        candidate["score"],
+        candidate["similarity_score"],
+        candidate["matched"],
+        candidate["missing"],
+        candidate["questions"]
     )
 
     return send_file(
         filename,
         as_attachment=True
     )
-
 @app.route("/login", methods=["GET", "POST"])
 def login():
 

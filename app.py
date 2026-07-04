@@ -3,6 +3,8 @@ from flask import Response
 import os
 import csv
 import json
+from utils.database import save_job
+from utils.database import get_all_jobs
 from flask import session
 from flask import send_file
 from utils.database import get_candidate_email
@@ -13,11 +15,15 @@ from utils.tfidf_matcher import calculate_similarity
 from utils.database import clear_db, update_status
 from utils.resume_parser import extract_text_from_pdf
 from utils.skill_extractor import extract_skills
+from utils.database import delete_job
+
 from utils.candidate_extractor import (
     extract_name,
     extract_email,
     extract_phone
 )
+from utils.database import get_job_by_id
+from utils.database import get_candidates_by_job
 from utils.job_matcher import calculate_match
 from utils.interview_generator import generate_questions
 from utils.database import save_candidate
@@ -25,6 +31,8 @@ from utils.database import (
     get_all_candidates,
     get_candidate_by_id
 )
+
+from utils.database import get_candidate_count
 app = Flask(__name__)
 
 app.secret_key = "resume_screening_secret"
@@ -58,8 +66,13 @@ Regards,
 HR Team
 """
 
-    mail.send(msg)
-    
+    try:
+        mail.send(msg)
+        print("Email sent successfully.")
+
+    except Exception as e:
+        print("Email could not be sent:", e)
+        
 @app.route("/")
 def home():
 
@@ -118,7 +131,9 @@ def analyze():
 
     questions = generate_questions(skills)
     print("Saving candidate:", name)
+    job_id = session.get("job_id")
     save_candidate(
+    job_id,    
     name,
     email,
     phone,
@@ -145,6 +160,76 @@ def analyze():
 }
     return redirect("/dashboard")
     #return render_template("results.html", name=name,email=email,phone=phone,skills=skills,score=match_result["score"],matched=match_result["matched_skills"],missing=match_result["missing_skills"], questions=questions,similarity_score=similarity_score)
+
+    print("Similarity:", similarity_score)
+    print("Matched:", match_result["matched_skills"])
+    print("Missing:", match_result["missing_skills"])
+    print("Questions:", questions)
+
+
+@app.route("/jobs")
+def jobs():
+
+    if not session.get("logged_in"):
+        return redirect("/login")
+
+    rows = get_all_jobs()
+
+    jobs = []
+
+    for row in rows:
+
+        jobs.append({
+
+    "id": row[0],
+    "title": row[1],
+    "company": row[2],
+    "location": row[3],
+    "experience": row[4],
+    "education": row[5],
+    "required_skills": row[6],
+    "job_description": row[7],
+    "created_date": row[8],
+    "candidate_count": get_candidate_count(row[0])
+
+})
+
+    return render_template(
+        "jobs.html",
+        jobs=jobs
+    )
+@app.route("/create_job", methods=["POST"])
+def create_job():
+
+    save_job(
+
+        request.form["title"],
+        request.form["company"],
+        request.form["location"],
+        request.form["experience"],
+        request.form["education"],
+        request.form["required_skills"],
+        request.form["job_description"]
+
+    )
+
+    return redirect("/jobs")
+ 
+@app.route("/delete_job/<int:id>")
+def delete_job_route(id):
+
+    delete_job(id)
+
+    return redirect("/jobs")
+
+
+@app.route("/job/<int:id>")
+def open_job(id):
+
+    session["job_id"] = id
+
+    return redirect("/dashboard")
+
 @app.route("/candidate/<int:id>")
 def candidate_profile(id):
 
@@ -179,20 +264,27 @@ def dashboard():
     search = request.args.get("search", "").lower()
     status = request.args.get("status", "")
 
-    rows = get_all_candidates()
+    job_id = session.get("job_id")
+
+    if not job_id:
+        return redirect("/jobs")
+
+    rows = get_candidates_by_job(job_id)
     
 
     candidates = []
 
     for row in rows:
         candidates.append({
+
     "id": row[0],
-    "name": row[1],
-    "email": row[2],
-    "phone": row[3],
-    "skills": row[4].split(","),
-    "score": row[5],
-    "status": row[6]
+    "name": row[2],
+    "email": row[3],
+    "phone": row[4],
+    "skills": row[5].split(","),
+    "score": row[6],
+    "status": row[11]
+
 })
     if search:
         candidates = [
@@ -227,6 +319,8 @@ def dashboard():
         1 for c in candidates
         if c["status"] == "Rejected"
     )
+    
+    job = get_job_by_id(job_id)
 
     return render_template(
     "dashboard.html",
@@ -237,8 +331,8 @@ def dashboard():
     shortlisted=shortlisted,
     pending=pending,
     rejected=rejected,
-    latest_report=latest_report
-
+    latest_report=latest_report,
+    job=job
 )
     
 @app.route("/export")
@@ -317,6 +411,9 @@ def logout():
 def download_pdf(id):
 
     row = get_candidate_by_id(id)
+    print("Database Row:")
+    print(row)
+    print("Length:", len(row))
 
     if row is None:
         return "Candidate not found"
@@ -334,21 +431,36 @@ def download_pdf(id):
         "questions": json.loads(row[9]) if row[9] else {},
         "status": row[10]
     }
+    # Recommendation Logic
+
+    if candidate["score"] >= 80:
+        recommendation = "Shortlist Candidate"
+        reason = "Excellent skill match with the job requirements."
+
+    elif candidate["score"] >= 60:
+        recommendation = "Consider for Interview"
+        reason = "Good match but a few important skills are missing."
+
+    else:
+        recommendation = "Not Recommended"
+        reason = "Candidate does not meet the minimum required skills."
 
     filename = f"{candidate['name']}_Report.pdf"
 
     generate_pdf(
-        filename,
-        candidate["name"],
-        candidate["email"],
-        candidate["phone"],
-        candidate["skills"],
-        candidate["score"],
-        candidate["similarity_score"],
-        candidate["matched"],
-        candidate["missing"],
-        candidate["questions"]
-    )
+    filename,
+    candidate["name"],
+    candidate["email"],
+    candidate["phone"],
+    candidate["skills"],
+    candidate["score"],
+    candidate["similarity_score"],
+    candidate["matched"],
+    candidate["missing"],
+    candidate["questions"],
+    recommendation,
+    reason
+)
 
     return send_file(
         filename,

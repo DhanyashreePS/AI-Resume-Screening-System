@@ -2,6 +2,14 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
 
 
+from reportlab.platypus import (
+    SimpleDocTemplate,
+    Paragraph,
+    Spacer
+)
+from reportlab.lib.styles import getSampleStyleSheet
+
+
 def generate_pdf(
     filename,
     name,
@@ -12,7 +20,9 @@ def generate_pdf(
     similarity_score,
     matched,
     missing,
-    questions
+    questions,
+    recommendation,
+    reason
 ):
 
     pdf = SimpleDocTemplate(filename)
@@ -21,59 +31,167 @@ def generate_pdf(
 
     content = []
 
+    # ==========================
+    # Title
+    # ==========================
+
     content.append(
         Paragraph(
-            "Candidate Analysis Report",
+            "<b>AI Resume Screening Report</b>",
             styles["Title"]
         )
     )
 
+    content.append(Spacer(1, 20))
+
+    # ==========================
+    # Candidate Details
+    # ==========================
+
+    content.append(
+        Paragraph(
+            "<b>Candidate Details</b>",
+            styles["Heading2"]
+        )
+    )
+
+    content.append(Paragraph(f"<b>Name:</b> {name}", styles["Normal"]))
+    content.append(Paragraph(f"<b>Email:</b> {email}", styles["Normal"]))
+    content.append(Paragraph(f"<b>Phone:</b> {phone}", styles["Normal"]))
+
+    content.append(Spacer(1, 15))
+
+    # ==========================
+    # Scores
+    # ==========================
+
+    content.append(
+        Paragraph(
+            "<b>Evaluation Scores</b>",
+            styles["Heading2"]
+        )
+    )
+
+    content.append(
+        Paragraph(
+            f"Match Score : <b>{score}%</b>",
+            styles["Normal"]
+        )
+    )
+
+    content.append(
+        Paragraph(
+            f"TF-IDF Similarity : <b>{similarity_score}%</b>",
+            styles["Normal"]
+        )
+    )
+
+    content.append(Spacer(1, 15))
+
+    # ==========================
+    # Skills
+    # ==========================
+
+    content.append(
+        Paragraph(
+            "<b>Detected Skills</b>",
+            styles["Heading2"]
+        )
+    )
+
+    for skill in skills:
+        content.append(
+            Paragraph(f"• {skill}", styles["Normal"])
+        )
+
     content.append(Spacer(1, 12))
 
-    content.append(
-        Paragraph(f"Name: {name}", styles["Normal"])
-    )
+    # ==========================
+    # Matched Skills
+    # ==========================
 
     content.append(
-        Paragraph(f"Email: {email}", styles["Normal"])
+        Paragraph(
+            "<b>Matched Skills</b>",
+            styles["Heading2"]
+        )
     )
 
+    for skill in matched:
+        content.append(
+            Paragraph(f"✓ {skill}", styles["Normal"])
+        )
+
+    content.append(Spacer(1, 12))
+
+    # ==========================
+    # Missing Skills
+    # ==========================
+
     content.append(
-        Paragraph(f"Phone: {phone}", styles["Normal"])
+        Paragraph(
+            "<b>Missing Skills</b>",
+            styles["Heading2"]
+        )
+    )
+
+    for skill in missing:
+        content.append(
+            Paragraph(f"✗ {skill}", styles["Normal"])
+        )
+
+    content.append(Spacer(1, 15))
+
+    # ==========================
+    # Interview Questions
+    # ==========================
+
+    content.append(
+        Paragraph(
+            "<b>Interview Questions</b>",
+            styles["Heading2"]
+        )
+    )
+
+    for skill, question_list in questions.items():
+
+        content.append(
+            Paragraph(
+                f"<b>{skill}</b>",
+                styles["Heading3"]
+            )
+        )
+
+        for question in question_list:
+
+            content.append(
+                Paragraph(
+                    f"• {question}",
+                    styles["Normal"]
+                )
+            )
+
+        content.append(Spacer(1, 8))
+    content.append(Spacer(1, 15))
+
+    content.append(
+        Paragraph(
+            "<b>Final Recommendation</b>",
+            styles["Heading2"]
+        )
     )
 
     content.append(
         Paragraph(
-            f"Skills: {', '.join(skills)}",
+            f"<b>Decision:</b> {recommendation}",
             styles["Normal"]
         )
     )
 
     content.append(
         Paragraph(
-            f"Match Score: {score}%",
+            f"<b>Reason:</b> {reason}",
             styles["Normal"]
-        )
-    )
-
-    content.append(
-        Paragraph(
-            f"TF-IDF Similarity: {similarity_score}%",
-            styles["Normal"]
-        )
-    )
-    
-    content.append(
-        Paragraph(
-        f"Matched Skills: {', '.join(matched)}",
-        styles["Normal"]
-        )
-    )
-
-    content.append(
-        Paragraph(
-        f"Missing Skills: {', '.join(missing)}",
-        styles["Normal"]
         )
     )
 

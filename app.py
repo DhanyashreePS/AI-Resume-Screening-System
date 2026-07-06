@@ -22,6 +22,7 @@ from utils.candidate_extractor import (
     extract_email,
     extract_phone
 )
+from utils.database import get_job_description
 from utils.database import get_job_by_id
 from utils.database import get_candidates_by_job
 from utils.job_matcher import calculate_match
@@ -103,7 +104,8 @@ def analyze():
     file.save(file_path)
 
     text = extract_text_from_pdf(file_path)
-    job_description = request.form["job_description"]    
+    job_id = session.get("job_id")   
+    job_description = get_job_description(job_id) 
     similarity_score = calculate_similarity(text,job_description)
 
     print("TF-IDF Similarity:", similarity_score)
@@ -266,25 +268,23 @@ def dashboard():
 
     job_id = session.get("job_id")
 
-    if not job_id:
-        return redirect("/jobs")
-
-    rows = get_candidates_by_job(job_id)
-    
+    if job_id:
+        rows = get_candidates_by_job(job_id)
+    else:
+        rows = get_all_candidates()
 
     candidates = []
 
     for row in rows:
+        print("Row:", row)
         candidates.append({
-
     "id": row[0],
-    "name": row[2],
-    "email": row[3],
-    "phone": row[4],
-    "skills": row[5].split(","),
-    "score": row[6],
+    "name": row[1],
+    "email": row[2],
+    "phone": row[3],
+    "skills": row[4].split(","),
+    "score": row[5],
     "status": row[11]
-
 })
     if search:
         candidates = [
@@ -320,7 +320,7 @@ def dashboard():
         if c["status"] == "Rejected"
     )
     
-    job = get_job_by_id(job_id)
+    job = get_job_by_id(job_id) if job_id else None
 
     return render_template(
     "dashboard.html",

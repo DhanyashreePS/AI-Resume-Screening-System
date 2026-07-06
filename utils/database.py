@@ -328,7 +328,7 @@ def get_job_by_id(job_id):
     cursor.execute("""
         SELECT *
         FROM jobs
-        WHERE id=?
+        WHERE id = ?
     """, (job_id,))
 
     row = cursor.fetchone()
@@ -336,3 +336,49 @@ def get_job_by_id(job_id):
     conn.close()
 
     return row
+def get_candidates_by_job(job_id):
+
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT *
+        FROM candidates
+        WHERE job_id = ?
+        ORDER BY score DESC
+    """, (job_id,))
+
+    rows = cursor.fetchall()
+
+    conn.close()
+
+    return rows
+def get_job_description(job_id):
+
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT job_description
+        FROM jobs
+        WHERE id = ?
+    """, (job_id,))
+
+    row = cursor.fetchone()
+
+    conn.close()
+
+    if row:
+        return row[0]
+
+    return ""
+
+conn = sqlite3.connect(DB_PATH)
+
+cursor = conn.cursor()
+
+cursor.execute("PRAGMA table_info(jobs)")
+
+print(cursor.fetchall())
+
+conn.close()

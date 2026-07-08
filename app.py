@@ -16,6 +16,7 @@ from utils.database import clear_db, update_status
 from utils.resume_parser import extract_text_from_pdf
 from utils.skill_extractor import extract_skills
 from utils.database import delete_job
+from utils.database import get_recent_jobs
 
 from utils.candidate_extractor import (
     extract_name,
@@ -74,14 +75,46 @@ HR Team
     except Exception as e:
         print("Email could not be sent:", e)
         
-@app.route("/")
+@app.route("/home")
 def home():
 
     if not session.get("logged_in"):
         return redirect("/login")
 
-    return redirect("/dashboard")
+    jobs = get_all_jobs()
 
+    rows = get_all_candidates()
+
+    jobs_posted = len(jobs)
+
+    resumes_screened = len(rows)
+
+    shortlisted = sum(
+        1 for row in rows
+        if row[6] == "Shortlisted"
+    )
+
+    pending = sum(
+        1 for row in rows
+        if row[6] == "Pending"
+    )
+
+    rejected = sum(
+        1 for row in rows
+        if row[6] == "Rejected"
+    )
+    recent_jobs = get_recent_jobs(),
+
+
+    return render_template(
+        "home.html",
+        jobs_posted=jobs_posted,
+        resumes_screened=resumes_screened,
+        shortlisted=shortlisted,        
+        recent_jobs=recent_jobs
+
+    )
+    return redirect("/home")
 
 @app.route("/analyze", methods=["POST"])
 def analyze():
@@ -478,14 +511,13 @@ def login():
 
             session["logged_in"] = True
 
-            return redirect("/")
+            return redirect("/home")   # <-- Changed
 
         else:
 
             return "Invalid Username or Password"
 
     return render_template("login.html")
-
 @app.route("/clear_db")
 def clear_database_route():
 
@@ -496,6 +528,10 @@ def clear_database_route():
     latest_report = {}
 
     return redirect("/dashboard")
+
+@app.route("/")
+def index():
+    return redirect("/home")
 
 if __name__ == "__main__":
     app.run(debug=True)

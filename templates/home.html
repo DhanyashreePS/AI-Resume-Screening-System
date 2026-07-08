@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>AI Resume Screener</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+</head>
+
+<body class="bg-light">
+
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+    <div class="container">
+
+        <a class="navbar-brand fw-bold text-primary" href="/home">
+            AI Resume Screener
+        </a>
+
+        <div class="ms-auto">
+
+            <a class="btn btn-outline-primary me-2" href="/home">
+                Home
+            </a>
+
+            <a class="btn btn-outline-primary me-2" href="/jobs">
+                Jobs
+            </a>
+
+            <a class="btn btn-danger" href="/logout">
+                Logout
+            </a>
+
+        </div>
+
+    </div>
+</nav>
+
+<div class="container py-5">
+
+<div class="row align-items-center">
+
+<div class="col-lg-7">
+
+<h6 class="text-primary fw-bold">
+NLP • Machine Learning • HR Automation
+</h6>
+
+<h1 class="display-4 fw-bold mt-3">
+
+Screen resumes in seconds with an
+
+<span class="text-primary">
+AI Job-Match Score
+</span>
+
+</h1>
+
+<p class="lead text-secondary mt-4">
+
+Upload resumes, compare them with job descriptions,
+calculate AI-powered match scores,
+generate interview questions,
+and shortlist candidates instantly.
+
+</p>
+
+<a href="/jobs" class="btn btn-primary btn-lg mt-3 me-3">
+
+Get Started →
+
+</a>
+
+<a href="#how" class="btn btn-outline-secondary btn-lg mt-3">
+
+How it Works
+
+</a>
+
+</div>
+
+<div class="col-lg-5">
+
+<div class="card shadow border-0 mb-4">
+
+<div class="card-body text-center">
+
+<h1 class="text-primary">
+{{ jobs_posted }}
+</h1>
+
+<h5>Jobs Posted</h5>
+
+</div>
+
+</div>
+
+<div class="card shadow border-0 mb-4">
+
+<div class="card-body text-center">
+
+<h1 class="text-success">
+{{ resumes_screened }}
+</h1>
+
+<h5>Resumes Screened</h5>
+
+</div>
+
+</div>
+
+<div class="card shadow border-0">
+
+<div class="card-body text-center">
+
+<h1 class="text-warning">
+{{ shortlisted }}
+</h1>
+
+<h5>Shortlisted</h5>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<hr class="my-5">
+
+<section id="how">
+
+<h2 class="fw-bold text-center mb-5">
+
+How the Match Engine Works
+
+</h2>
+
+<div class="row g-4">
+
+<div class="col-md-3">
+
+<div class="card shadow-sm h-100">
+
+<div class="card-body">
+
+<h4>📄 Parse</h4>
+
+<p>
+
+Extract text from uploaded PDF resumes.
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="col-md-3">
+
+<div class="card shadow-sm h-100">
+
+<div class="card-body">
+
+<h4>🧠 Extract</h4>
+
+<p>
+
+Identify candidate information,
+skills,
+experience and contact details.
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="col-md-3">
+
+<div class="card shadow-sm h-100">
+
+<div class="card-body">
+
+<h4>📊 Score</h4>
+
+<p>
+
+Use TF-IDF similarity and skill matching
+to calculate the Job Match Score.
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="col-md-3">
+
+<div class="card shadow-sm h-100">
+
+<div class="card-body">
+
+<h4>✅ Decide</h4>
+
+<p>
+
+Shortlist,
+Reject,
+Download Reports
+and Generate Interview Questions.
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+<hr class="my-5">
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+<h2 class="fw-bold">
+
+Recent Jobs
+
+</h2>
+
+<a href="/jobs"
+class="text-decoration-none fw-bold">
+
+View All →
+
+</a>
+
+</div>
+
+<div class="row">
+
+{% for job in recent_jobs %}
+
+<div class="col-md-4 mb-4">
+
+<a href="/job/{{ job[0] }}" class="text-decoration-none text-dark">
+
+<div class="card shadow-sm h-100">
+
+<div class="card-body">
+
+<h5>{{ job[1] }}</h5>
+
+<p class="text-muted">
+{{ job[2] }} • {{ job[3] }}
+</p>
+
+<div class="d-flex justify-content-between">
+
+<span class="badge bg-primary">
+Job
+</span>
+
+<small>
+{{ job[4] }}
+</small>
+
+</div>
+
+</div>
+
+</div>
+
+</a>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+</div>
+
+</section>
+
+<footer class="text-center mt-5">
+
+<hr>
+
+<p class="text-secondary">
+
+AI Resume Screening System
+
+<br>
+
+© 2026 Dhanyashree PS
+
+</p>
+
+</footer>
+
+</div>
+
+</body>
+
+</html>

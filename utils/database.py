@@ -373,12 +373,24 @@ def get_job_description(job_id):
 
     return ""
 
-conn = sqlite3.connect(DB_PATH)
+def get_recent_jobs():
 
-cursor = conn.cursor()
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
 
-cursor.execute("PRAGMA table_info(jobs)")
+    cursor.execute("""
+        SELECT
+            id,
+            title,
+            company,
+            location,
+            created_date
+        FROM jobs
+        ORDER BY id DESC
+    """)
 
-print(cursor.fetchall())
+    jobs = cursor.fetchall()
 
-conn.close()
+    conn.close()
+
+    return jobs

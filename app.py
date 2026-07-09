@@ -103,7 +103,7 @@ def home():
         1 for row in rows
         if row[6] == "Rejected"
     )
-    recent_jobs = get_recent_jobs(),
+    recent_jobs = get_recent_jobs()
 
 
     return render_template(
@@ -233,6 +233,8 @@ def jobs():
         "jobs.html",
         jobs=jobs
     )
+    
+print(get_recent_jobs())
 @app.route("/create_job", methods=["POST"])
 def create_job():
 

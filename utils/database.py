@@ -394,3 +394,16 @@ def get_recent_jobs():
     conn.close()
 
     return jobs
+
+conn = sqlite3.connect("data/resume_screening.db")
+cursor = conn.cursor()
+
+cursor.execute("SELECT * FROM jobs")
+rows = cursor.fetchall()
+
+print("Total Jobs:", len(rows))
+
+for row in rows:
+    print(row)
+
+conn.close()

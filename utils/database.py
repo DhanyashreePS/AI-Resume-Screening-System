@@ -395,6 +395,85 @@ def get_recent_jobs():
 
     return jobs
 
+def get_job_skills(job_id):
+
+    conn = sqlite3.connect(DB_PATH)
+
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT required_skills
+        FROM jobs
+        WHERE id = ?
+    """, (job_id,))
+
+    row = cursor.fetchone()
+
+    conn.close()
+
+    if row:
+        return [skill.strip().lower() for skill in row[0].split(",")]
+
+    return []
+
+def update_job(
+    job_id,
+    title,
+    company,
+    location,
+    experience,
+    education,
+    required_skills,
+    job_description
+):
+
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        UPDATE jobs
+        SET
+            title=?,
+            company=?,
+            location=?,
+            experience=?,
+            education=?,
+            required_skills=?,
+            job_description=?
+        WHERE id=?
+    """,
+    (
+        title,
+        company,
+        location,
+        experience,
+        education,
+        required_skills,
+        job_description,
+        job_id
+    ))
+
+    conn.commit()
+    conn.close()
+
+def get_job_by_id(job_id):
+
+    conn = sqlite3.connect(DB_PATH)
+
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT *
+        FROM jobs
+        WHERE id=?
+    """, (job_id,))
+
+    job = cursor.fetchone()
+
+    conn.close()
+
+    return job
+
 conn = sqlite3.connect("data/resume_screening.db")
 cursor = conn.cursor()
 

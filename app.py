@@ -17,7 +17,8 @@ from utils.resume_parser import extract_text_from_pdf
 from utils.skill_extractor import extract_skills
 from utils.database import delete_job
 from utils.database import get_recent_jobs
-
+from utils.database import get_job_skills
+from utils.database import update_job
 from utils.candidate_extractor import (
     extract_name,
     extract_email,
@@ -149,16 +150,7 @@ def analyze():
     email = extract_email(text)
     phone = extract_phone(text)
 
-    required_skills = [
-        "python",
-        "sql",
-        "django",
-        "git",
-        "html",
-        "css",
-        "machine learning"
-    ]
-
+    required_skills = get_job_skills(job_id)
     match_result = calculate_match(
         skills,
         required_skills
@@ -267,6 +259,24 @@ def open_job(id):
 
     return redirect("/dashboard")
 
+@app.route("/get_job/<int:id>")
+def get_job(id):
+
+    if not session.get("logged_in"):
+        return {}
+
+    job = get_job_by_id(id)
+
+    return {
+        "id": job[0],
+        "title": job[1],
+        "company": job[2],
+        "location": job[3],
+        "experience": job[4],
+        "education": job[5],
+        "required_skills": job[6],
+        "job_description": job[7]
+    }
 @app.route("/candidate/<int:id>")
 def candidate_profile(id):
 
@@ -369,7 +379,26 @@ def dashboard():
     latest_report=latest_report,
     job=job
 )
-    
+ 
+@app.route("/update_job/<int:id>", methods=["POST"])
+def update_job_route(id):
+
+    if not session.get("logged_in"):
+        return redirect("/login")
+
+    update_job(
+        id,
+        request.form["title"],
+        request.form["company"],
+        request.form["location"],
+        request.form["experience"],
+        request.form["education"],
+        request.form["required_skills"],
+        request.form["job_description"]
+    )
+
+    return redirect("/jobs")
+   
 @app.route("/export")
 def export_csv():
     if not session.get("logged_in"):

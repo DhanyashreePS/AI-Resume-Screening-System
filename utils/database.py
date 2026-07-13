@@ -204,10 +204,22 @@ def delete_job(job_id):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
-    cursor.execute(
-        "DELETE FROM jobs WHERE id=?",
-        (job_id,)
-    )
+    print("Deleting Job ID:", job_id)
+
+    cursor.execute("SELECT id, name, job_id FROM candidates")
+    print("Candidates before delete:", cursor.fetchall())
+
+    cursor.execute("""
+        DELETE FROM candidates
+        WHERE job_id = ?
+    """, (job_id,))
+
+    print("Deleted candidate rows:", cursor.rowcount)
+
+    cursor.execute("""
+        DELETE FROM jobs
+        WHERE id = ?
+    """, (job_id,))
 
     conn.commit()
     conn.close()
@@ -285,9 +297,11 @@ def get_all_candidates():
     """)
 
     rows = cursor.fetchall()
+    print("Total candidates:", len(rows))
+    print(rows)
 
     conn.close()
-
+    
     return rows
 
 def get_candidate_by_id(id):
@@ -474,15 +488,14 @@ def get_job_by_id(job_id):
 
     return job
 
-conn = sqlite3.connect("data/resume_screening.db")
+conn = sqlite3.connect(DB_PATH)
 cursor = conn.cursor()
 
-cursor.execute("SELECT * FROM jobs")
-rows = cursor.fetchall()
+cursor.execute("""
+SELECT id, name, job_id
+FROM candidates
+""")
 
-print("Total Jobs:", len(rows))
-
-for row in rows:
-    print(row)
+print(cursor.fetchall())
 
 conn.close()

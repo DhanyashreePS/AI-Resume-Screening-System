@@ -105,6 +105,14 @@ def home():
         if row[6] == "Rejected"
     )
     recent_jobs = get_recent_jobs()
+    jobs = get_all_jobs()
+    rows = get_all_candidates()
+
+    print("Jobs:", jobs)
+    print("Candidates:", rows)
+
+    jobs_posted = len(jobs)
+    resumes_screened = len(rows)
 
 
     return render_template(

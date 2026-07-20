@@ -4,7 +4,7 @@ from datetime import datetime
 
 DB_PATH = "data/resume_screening.db"
 
-
+print("Database Path:", DB_PATH)
 def save_job(
     title,
     company,
@@ -329,12 +329,13 @@ def clear_db():
     cursor = conn.cursor()
 
     cursor.execute("DELETE FROM candidates")
+    cursor.execute("DELETE FROM jobs")
 
     conn.commit()
 
     conn.close()
 
-def get_job_by_id(job_id):
+def get_job_by__id(job_id):
 
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
@@ -470,23 +471,33 @@ def update_job(
     conn.commit()
     conn.close()
 
-def get_job_by_id(job_id):
+def get_job_by_id(id):
 
     conn = sqlite3.connect(DB_PATH)
 
+    conn.row_factory = sqlite3.Row
+
     cursor = conn.cursor()
 
-    cursor.execute("""
-        SELECT *
-        FROM jobs
-        WHERE id=?
-    """, (job_id,))
+    cursor.execute("SELECT * FROM jobs WHERE id=?", (id,))
 
-    job = cursor.fetchone()
+    row = cursor.fetchone()
 
     conn.close()
 
-    return job
+    return dict(row)
+
+
+
+conn = sqlite3.connect(DB_PATH)
+cursor = conn.cursor()
+
+cursor.execute("DELETE FROM candidates")
+
+print("Deleted rows:", cursor.rowcount)
+
+conn.commit()
+conn.close()
 
 conn = sqlite3.connect(DB_PATH)
 cursor = conn.cursor()
@@ -499,3 +510,66 @@ FROM candidates
 print(cursor.fetchall())
 
 conn.close()
+
+
+def update_job(
+        id,
+        title,
+        company,
+        location,
+        experience,
+        education,
+        required_skills,
+        job_description):
+
+    conn = sqlite3.connect(DB_PATH)
+
+    cursor = conn.cursor()
+
+    cursor.execute("""
+
+    UPDATE jobs
+
+    SET
+
+        title=?,
+
+        company=?,
+
+        location=?,
+
+        experience=?,
+
+        education=?,
+
+        required_skills=?,
+
+        job_description=?
+
+    WHERE id=?
+
+    """,
+
+    (
+
+        title,
+
+        company,
+
+        location,
+
+        experience,
+
+        education,
+
+        required_skills,
+
+        job_description,
+
+        id
+
+    ))
+
+    conn.commit()
+
+    conn.close()

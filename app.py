@@ -5,7 +5,7 @@ import csv
 import json
 from utils.database import save_job
 from utils.database import get_all_jobs
-from flask import session
+from flask import session,jsonify
 from flask import send_file
 from utils.database import get_candidate_email
 from utils.pdf_generator import generate_pdf
@@ -113,6 +113,9 @@ def home():
 
     jobs_posted = len(jobs)
     resumes_screened = len(rows)
+    print("Jobs Posted:", jobs_posted)
+    print("Resumes Screened:", resumes_screened)
+    print("Rows:", rows)
 
 
     return render_template(
@@ -268,23 +271,12 @@ def open_job(id):
     return redirect("/dashboard")
 
 @app.route("/get_job/<int:id>")
-def get_job(id):
-
-    if not session.get("logged_in"):
-        return {}
+def get_job_json(id):
 
     job = get_job_by_id(id)
 
-    return {
-        "id": job[0],
-        "title": job[1],
-        "company": job[2],
-        "location": job[3],
-        "experience": job[4],
-        "education": job[5],
-        "required_skills": job[6],
-        "job_description": job[7]
-    }
+    return jsonify(job)
+
 @app.route("/candidate/<int:id>")
 def candidate_profile(id):
 
@@ -297,15 +289,19 @@ def candidate_profile(id):
         return "Candidate not found"
 
     candidate = {
-        "id": row[0],
-        "name": row[1],
-        "email": row[2],
-        "phone": row[3],
-        "skills": row[4].split(","),
-        "score": row[5],
-        "status": row[6]
-    }
-
+    "id": row[0],
+    "name": row[1],
+    "email": row[2],
+    "phone": row[3],
+    "skills": row[4].split(",") if row[4] else [],
+    "score": row[5],
+    "job_id": row[6],
+    "similarity_score": row[7],
+    "matched": row[8].split(",") if row[8] else [],
+    "missing": row[9].split(",") if row[9] else [],
+    "questions": json.loads(row[10]) if row[10] else {},
+    "status": row[11]
+}
     return render_template(
         "candidate_profile.html",
         candidate=candidate
@@ -386,13 +382,17 @@ def dashboard():
     rejected=rejected,
     latest_report=latest_report,
     job=job
-)
- 
+) 
+@app.route("/get_job/<int:id>")
+def get_job(id):
+
+    job = get_job_by_id(id)
+
+    return jsonify(job)
+
+
 @app.route("/update_job/<int:id>", methods=["POST"])
 def update_job_route(id):
-
-    if not session.get("logged_in"):
-        return redirect("/login")
 
     update_job(
         id,
@@ -571,6 +571,18 @@ def clear_database_route():
 @app.route("/")
 def index():
     return redirect("/home")
+
+import sqlite3
+
+conn = sqlite3.connect("data/resume_screening.db")
+cursor = conn.cursor()
+
+cursor.execute("PRAGMA table_info(candidates)")
+
+for col in cursor.fetchall():
+    print(col)
+
+conn.close()
 
 if __name__ == "__main__":
     app.run(debug=True)

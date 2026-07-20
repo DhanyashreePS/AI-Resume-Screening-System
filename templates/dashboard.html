@@ -7,37 +7,56 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>{{ job[1] }} - Dashboard</title>
+    <title>Dashboard | AI Resume Screening System</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-          rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
 
         body{
-            background:#f4f7fb;
+            background:#f5f7fb;
+        }
+
+        .navbar{
+            background:white;
+            box-shadow:0 2px 12px rgba(0,0,0,.08);
         }
 
         .card{
             border:none;
-            border-radius:15px;
-            box-shadow:0px 4px 12px rgba(0,0,0,0.08);
+            border-radius:18px;
+            box-shadow:0 5px 15px rgba(0,0,0,.08);
+        }
+
+        .stat-card{
+            transition:.3s;
+        }
+
+        .stat-card:hover{
+            transform:translateY(-4px);
+        }
+
+        .dashboard-title{
+            font-weight:700;
         }
 
         .section-title{
-            font-weight:bold;
-            color:#0d6efd;
+            font-weight:700;
+            margin-bottom:20px;
         }
 
-        .card-header{
-            font-weight:bold;
-            border-radius:15px 15px 0 0 !important;
+        .table{
+            vertical-align:middle;
         }
 
-        textarea{
-            resize:none;
+        .badge-skill{
+            font-size:.85rem;
+            padding:8px 12px;
+            margin:3px;
         }
 
     </style>
@@ -46,706 +65,533 @@
 
 <body>
 
-<div class="container-xxl py-4">
-    <!-- Dashboard Title -->
+<!-- NAVBAR -->
 
-    <div class="mb-4">
-    <h2 class="fw-bold">{{ job[1] }}</h2>
-    <p class="text-muted mb-0">{{ job[2] }}</p>
+<nav class="navbar navbar-expand-lg">
+
+<div class="container">
+
+<a class="navbar-brand fw-bold">
+
+AI Resume Screening System
+
+</a>
+
+<div class="ms-auto">
+
+<a href="/home"
+class="btn btn-outline-primary me-2">
+
+<i class="bi bi-house"></i>
+
+Home
+
+</a>
+
+<a href="/jobs"
+class="btn btn-outline-primary me-2">
+
+<i class="bi bi-briefcase"></i>
+
+Jobs
+
+</a>
+
+<a href="/logout"
+class="btn btn-danger">
+
+<i class="bi bi-box-arrow-right"></i>
+
+Logout
+
+</a>
+
 </div>
-        <p class="text-muted">
 
-            Applicant Tracking System
-
-        </p>
-    </div>
-    <div class="mb-3">
-    <a href="/jobs" class="btn btn-outline-secondary">
-        ← Back to Jobs
-    </a>
 </div>
 
-    <!-- ================= UPPER SECTION ================= -->
+</nav>
 
-    <div class="row g-4">
+<div class="container py-5">
 
-        <!-- LEFT PANEL -->
+<!-- Dashboard Heading -->
 
-        <div class="card shadow-sm mb-4">
-    <div class="card-header">
-        <h5 class="mb-0">Analyze Resume</h5>
+<div class="mb-5">
+
+<h2 class="dashboard-title">
+
+AI Resume Screening Dashboard
+
+</h2>
+
+<p class="text-muted">
+
+Manage resumes, evaluate candidates, and monitor recruitment analytics.
+
+</p>
+
+</div>
+
+<!-- Statistics Cards -->
+
+<div class="row g-4 mb-5">
+
+<div class="col-lg-3 col-md-6">
+
+<div class="card stat-card">
+
+<div class="card-body text-center">
+
+<i class="bi bi-people-fill text-primary"
+style="font-size:45px;"></i>
+
+<h1 class="fw-bold text-primary mt-3">
+
+{{ total_candidates }}
+
+</h1>
+
+<h5>
+
+Total Candidates
+
+</h5>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="col-lg-3 col-md-6">
+
+<div class="card stat-card">
+
+<div class="card-body text-center">
+
+<i class="bi bi-check-circle-fill text-success"
+style="font-size:45px;"></i>
+
+<h1 class="fw-bold text-success mt-3">
+
+{{ shortlisted }}
+
+</h1>
+
+<h5>
+
+Shortlisted
+
+</h5>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="col-lg-3 col-md-6">
+
+<div class="card stat-card">
+
+<div class="card-body text-center">
+
+<i class="bi bi-hourglass-split text-warning"
+style="font-size:45px;"></i>
+
+<h1 class="fw-bold text-warning mt-3">
+
+{{ pending }}
+
+</h1>
+
+<h5>
+
+Pending
+
+</h5>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="col-lg-3 col-md-6">
+
+<div class="card stat-card">
+
+<div class="card-body text-center">
+
+<i class="bi bi-x-circle-fill text-danger"
+style="font-size:45px;"></i>
+
+<h1 class="fw-bold text-danger mt-3">
+
+{{ rejected }}
+
+</h1>
+
+<h5>
+
+Rejected
+
+</h5>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<!-- ================= Resume Analysis ================= -->
+
+<!-- ================= Resume Analysis ================= -->
+
+<div class="card mb-5">
+
+    <div class="card-header bg-white py-3">
+
+        <h4 class="section-title mb-0">
+
+            <i class="bi bi-file-earmark-arrow-up-fill text-primary"></i>
+
+            Resume Analysis
+
+        </h4>
+
     </div>
 
     <div class="card-body">
 
-        <form action="/analyze"
-              method="POST"
-              enctype="multipart/form-data">
+        <p class="text-muted">
 
-            <!-- Drag & Drop Area -->
+            Upload a resume to calculate the AI Match Score, compare it with the selected job description and generate interview questions.
+
+        </p>
+
+        <form
+            action="/analyze"
+            method="POST"
+            enctype="multipart/form-data"
+            id="uploadForm">
+
             <div id="drop-area"
-                 class="border border-2 border-primary rounded p-5 text-center"
-                 style="cursor:pointer; background:#f8f9fa;">
+style="cursor:pointer;"
+class="border border-2 border-primary rounded-4 p-5 text-center bg-light">
 
-                <h5>📄 Drag & Drop Resume Here</h5>
+                <i class="bi bi-cloud-arrow-up-fill text-primary"
+                   style="font-size:65px;"></i>
+
+                <h4 class="mt-3">
+
+                    Drag & Drop Resume Here
+
+                </h4>
 
                 <p class="text-muted">
-                    or click below to browse
+
+                    or
+
                 </p>
 
-                <input type="file"
-                       id="resume"
-                       name="resume"
-                       accept=".pdf"
-                       hidden
-                       required>
+                <input
+                    type="file"
+                    id="resume"
+                    name="resume"
+                    accept=".pdf"
+                    hidden
+                    required>
 
-                <button type="button"
-                        class="btn btn-outline-primary"
-                        onclick="document.getElementById('resume').click();">
-                    Browse Resume
+                <button
+                    type="button"
+                    class="btn btn-outline-primary"
+                    onclick="document.getElementById('resume').click()">
+
+                    Choose PDF Resume
+
                 </button>
 
-                <p class="mt-3 text-success" id="file-name"></p>
+                <div
+                    id="file-name"
+                    class="mt-4 fw-bold text-success">
+
+                </div>
 
             </div>
 
-            <div class="text-end mt-4">
-                <button class="btn btn-primary">
+            <div class="text-center mt-4">
+
+                <button
+                    class="btn btn-primary btn-lg px-5">
+
+                    <i class="bi bi-cpu-fill"></i>
+
                     Analyze Resume
+
                 </button>
+
             </div>
 
         </form>
 
     </div>
+
 </div>
 
-        </div>
+<!-- ================= Candidate Ranking ================= -->
 
-        <!-- RIGHT PANEL STARTS -->
+<div class="card mb-5">
 
-        <div class="card shadow-sm mb-4">
-            <!-- ================= LATEST RESUME ANALYSIS ================= -->
+    <div class="card-header bg-white py-3">
 
-<div class="card">
+        <div class="d-flex justify-content-between align-items-center">
 
-    <div class="card-header bg-info text-white">
+            <h4 class="section-title mb-0">
 
-        Latest Resume Analysis
+                <i class="bi bi-bar-chart-fill text-success"></i>
 
-    </div>
-
-    <div class="card-body" >
-
-        {% if latest_report %}
-
-        <!-- Candidate Information -->           
-
-        <div class="row mb-3">
-
-            <div class="col-md-6">
-
-                <p><strong>👤 Name</strong> {{ latest_report.name }}</p>
-
-            </div>
-
-            <div class="col-md-6">
-
-                <p><strong>Email :</strong> {{ latest_report.email }}</p>
-
-            </div>
-
-        </div>
-
-        <div class="row mb-3">
-
-            <div class="col-md-6">
-
-                <p><strong>Phone :</strong> {{ latest_report.phone }}</p>
-
-            </div>
-
-            <div class="col-md-6">
-
-                <p>
-
-                    <strong>Match Score :</strong>
-
-                    <span class="badge bg-success">
-
-                        {{ latest_report.score }}%
-
-                    </span>
-
-                </p>
-
-            </div>
-
-        </div>
-
-        <div class="row mb-4">
-
-            <div class="col-md-6">
-
-                <p>
-
-                    <strong>TF-IDF Similarity :</strong>
-
-                    <span class="badge bg-primary">
-
-                        {{ latest_report.similarity_score }}%
-
-                    </span>
-
-                </p>
-
-            </div>
-
-        </div>
-
-        <!-- Skills -->
-
-        <div class="row">
-
-            <div class="col-md-6">
-
-                <div class="card border-success mb-3">
-
-                    <div class="card-header bg-success text-white">
-
-                        Matched Skills
-
-                    </div>
-
-                    <div class="card-body">
-
-                        <ul class="mb-0">
-
-                            {% for skill in latest_report.matched %}
-
-                            <li>{{ skill }}</li>
-
-                            {% endfor %}
-
-                        </ul>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-            <div class="col-md-6">
-
-                <div class="card border-danger mb-3">
-
-                    <div class="card-header bg-danger text-white">
-
-                        Missing Skills
-
-                    </div>
-
-                    <div class="card-body">
-
-                        <ul class="mb-0">
-
-                            {% for skill in latest_report.missing %}
-
-                            <li>{{ skill }}</li>
-
-                            {% endfor %}
-
-                        </ul>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <!-- Interview Questions -->
-
-        {% if latest_report.questions %}
-
-        <h5 class="mt-4 mb-3 text-primary">
-
-            Interview Questions
-
-        </h5>
-
-        <div class="row">
-
-            {% for skill, qlist in latest_report.questions.items() %}
-
-            <div class="col-md-6 mb-3">
-
-                <div class="card h-100 border-secondary">
-
-                    <div class="card-header bg-light">
-
-                        <strong>{{ skill|capitalize }}</strong>
-
-                    </div>
-
-                    <div class="card-body">
-
-                        <ul class="mb-0">
-
-                            {% for q in qlist %}
-
-                            <li>{{ q }}</li>
-
-                            {% endfor %}
-
-                        </ul>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-            {% endfor %}
-
-        </div>
-
-        {% endif %}
-
-        {% else %}
-
-        <div class="text-center py-5">
-
-            <h4 class="text-secondary">
-
-                No Resume Analyzed Yet
+                Candidate Ranking
 
             </h4>
 
-            <p class="text-muted">
+            <span class="badge bg-primary fs-6">
 
-                Upload a resume to see the latest analysis.
+                {{ total_candidates }} Candidates
 
-            </p>
-
-        </div>
-
-        {% endif %}
-
-    </div>
-
-</div>
-
-</div>
-
-</div>
-<!-- ================= DASHBOARD STATISTICS ================= -->
-
-<div class="row mt-4">
-
-    <div class="col-12">
-
-        <div class="card">
-
-            <div class="card-header bg-dark text-white">
-
-                Dashboard Statistics
-
-            </div>
-
-            <div class="card-body">
-
-                <div class="row text-center">
-
-                    <div class="row g-3">
-
-    <div class="col-md-3">
-
-        <div class="card shadow border-primary text-center h-100">
-
-            <div class="card-body">
-
-                <h1 class="text-primary mb-2">
-                    👥
-                </h1>
-
-                <h2 class="fw-bold">
-                    {{ total_candidates }}
-                </h2>
-
-                <p class="text-muted mb-0">
-                    Total Candidates
-                </p>
-
-            </div>
+            </span>
 
         </div>
 
     </div>
 
-    <div class="col-md-3">
+    <div class="card-body p-0">
 
-        <div class="card shadow border-success text-center h-100">
+        <div class="table-responsive">
 
-            <div class="card-body">
+            <table class="table table-hover mb-0">
 
-                <h1 class="text-success mb-2">
-                    ✅
-                </h1>
+                <thead class="table-light">
 
-                <h2 class="fw-bold text-success">
-                    {{ shortlisted }}
-                </h2>
+                    <tr>
 
-                <p class="text-muted mb-0">
-                    Shortlisted
-                </p>
+                        <th class="text-center">
 
-            </div>
+                            Rank
 
-        </div>
+                        </th>
 
-    </div>
+                        <th>
 
-    <div class="col-md-3">
+                            Candidate
 
-        <div class="card shadow border-warning text-center h-100">
+                        </th>
 
-            <div class="card-body">
+                        <th class="text-center">
 
-                <h1 class="text-warning mb-2">
-                    ⏳
-                </h1>
+                            Match Score
 
-                <h2 class="fw-bold text-warning">
-                    {{ pending }}
-                </h2>
+                        </th>
 
-                <p class="text-muted mb-0">
-                    Pending
-                </p>
+                        <th class="text-center">
 
-            </div>
+                            Similarity
 
-        </div>
+                        </th>
 
-    </div>
+                        <th class="text-center">
 
-    <div class="col-md-3">
+                            Status
 
-        <div class="card shadow border-danger text-center h-100">
+                        </th>
 
-            <div class="card-body">
+                        <th class="text-center">
 
-                <h1 class="text-danger mb-2">
-                    ❌
-                </h1>
+                            View
 
-                <h2 class="fw-bold text-danger">
-                    {{ rejected }}
-                </h2>
+                        </th>
 
-                <p class="text-muted mb-0">
-                    Rejected
-                </p>
+                        <th class="text-center">
 
-            </div>
+                            PDF
 
-        </div>
+                        </th>
 
-    </div>
+                    </tr>
 
-</div>
-</div>
-</div>
+                </thead>
 
-        </div>
+                <tbody>
 
-    </div>
+                {% if candidates %}
 
-</div>
+                {% for candidate in candidates %}
 
-<!-- ================= LOWER SECTION STARTS ================= -->
+                <tr>
 
-<div class="row mt-4">
+                    <td class="text-center fw-bold">
 
-    <!-- LEFT SIDE -->
+                        {{ loop.index }}
 
-    <div class="col-lg-6">
-        <!-- ================= LOWER LEFT : CHART ================= -->
+                    </td>
 
-<div class="row">
+                    <td>
 
-    <!-- Bar Chart -->
+                        <strong>
 
-    <div class="col-lg-6">
+                            {{ candidate.name }}
 
-        <div class="card shadow h-100">
+                        </strong>
 
-            <div class="card-header bg-info text-white">
+                    </td>
 
-                <h5 class="mb-0">
-                    Candidate Score Chart
-                </h5>
+                    <td class="text-center">
 
-            </div>
+                        <span class="badge bg-primary">
 
-            <div class="card-body">
+                            {{ candidate.score }}%
 
-                <canvas id="scoreChart"></canvas>
+                        </span>
 
-            </div>
+                    </td>
 
-        </div>
+                    <td class="text-center">
 
-    </div>
+                        {{ candidate.similarity_score }}%
 
-    <!-- Pie Chart -->
+                    </td>
 
-    <div class="col-lg-6">
+                    <td class="text-center">
 
-        <div class="card shadow h-100">
+                        {% if candidate.status=="Shortlisted" %}
 
-            <div class="card-header bg-success text-white">
-
-                <h5 class="mb-0">
-                    Candidate Status Distribution
-                </h5>
-
-            </div>
-
-            <div class="card-body">
-
-                <canvas id="statusChart"></canvas>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-</div>
-
-<!-- ================= LOWER RIGHT ================= -->
-
-<div class="col-lg-6">
-
-    <!-- Search -->
-
-    <div class="card mb-4">
-
-        <div class="card-header bg-secondary text-white">
-
-            Search Candidate
-
-        </div>
-
-        <div class="card-body">
-
-            <form
-                action="/dashboard"
-                method="GET"
-                class="row g-2">
-
-                <div class="col-md-5">
-
-                    <input
-                        type="text"
-                        class="form-control"
-                        name="search"
-                        placeholder="Search Candidate..."
-                        value="{{ request.args.get('search','') }}">
-
-                </div>
-
-                <div class="col-md-4">
-
-                    <select
-                        class="form-select"
-                        name="status">
-
-                        <option value="">All Status</option>
-
-                        <option value="Pending">
-
-                            Pending
-
-                        </option>
-
-                        <option value="Shortlisted">
+                        <span class="badge bg-success">
 
                             Shortlisted
 
-                        </option>
+                        </span>
 
-                        <option value="Rejected">
+                        {% elif candidate.status=="Rejected" %}
+
+                        <span class="badge bg-danger">
 
                             Rejected
 
-                        </option>
+                        </span>
 
-                    </select>
+                        {% else %}
 
-                </div>
+                        <span class="badge bg-warning text-dark">
 
-                <div class="col-md-3">
+                            Pending
 
-                    <button
-                        class="btn btn-primary w-100">
+                        </span>
 
-                        Search
+                        {% endif %}
 
-                    </button>
+                    </td>
 
-                </div>
+                    <td class="text-center">
 
-            </form>
+                        <a
+                        href="/candidate/{{ candidate.id }}"
+                        class="btn btn-outline-primary btn-sm">
+
+                            <i class="bi bi-eye-fill"></i>
+
+                            View
+
+                        </a>
+
+                    </td>
+
+                    <td class="text-center">
+
+                        <a
+                        href="/download_pdf/{{ candidate.id }}"
+                        class="btn btn-outline-danger btn-sm">
+
+                            <i class="bi bi-file-earmark-pdf-fill"></i>
+
+                            PDF
+
+                        </a>
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+                {% else %}
+
+                <tr>
+
+                    <td colspan="7">
+
+                        <div class="text-center py-5">
+
+                            <i class="bi bi-people"
+                               style="font-size:60px;color:#bcbcbc;"></i>
+
+                            <h5 class="mt-3">
+
+                                No Candidates Available
+
+                            </h5>
+
+                            <p class="text-muted">
+
+                                Upload and analyze a resume to populate the ranking table.
+
+                            </p>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+                {% endif %}
+
+                </tbody>
+
+            </table>
 
         </div>
 
     </div>
 
-    <!-- Candidate Ranking -->
+</div>
 
-    <div class="card">
+<!-- ================= Analytics ================= -->
+<div class="row mt-4">
 
-        <div class="card-header bg-dark text-white">
+    <!-- ================= Bar Chart ================= -->
 
-            Candidate Ranking
+    <div class="col-lg-7 mb-4">
 
-        </div>
+        <div class="card shadow-sm border-0 h-100">
 
-        <div class="card-body p-0">
+            <div class="card-header bg-white">
 
-            <div class="table-responsive">
+                <h4 class="section-title mb-0">
 
-                <table
-                    class="table table-hover table-striped mb-0">
+                    <i class="bi bi-graph-up-arrow text-primary"></i>
 
-                    <thead class="table-dark">
+                    Candidate Score Distribution
 
-                        <tr>
+                </h4>
 
-                            <th>Rank</th>
+            </div>
 
-                            <th>Name</th>
+            <div class="card-body">
 
-                            <th>Score</th>
-
-                            <th>Status</th>
-
-                            <th>Action</th>
-
-                        </tr>
-
-                    </thead>
-
-                    <tbody>
-
-                    {% if candidates %}
-
-                    {% for candidate in candidates %}
-
-                        <tr>
-
-                            <td>{{ loop.index }}</td>
-
-                            <td>{{ candidate.name }}</td>
-
-                            <td>
-
-                                <span class="badge bg-primary">
-
-                                    {{ candidate.score }}%
-
-                                </span>
-
-                            </td>
-
-                            <td>
-
-                                {% if candidate.status=="Shortlisted" %}
-
-                                    <span class="badge bg-success">
-
-                                        Shortlisted
-
-                                    </span>
-
-                                {% elif candidate.status=="Rejected" %}
-
-                                    <span class="badge bg-danger">
-
-                                        Rejected
-
-                                    </span>
-
-                                {% else %}
-
-                                    <span class="badge bg-warning text-dark">
-
-                                        Pending
-
-                                    </span>
-
-                                {% endif %}
-
-                            </td>
-
-                            <td>
-                                <a href="/candidate/{{ candidate.id }}"
-   class="btn btn-primary btn-sm">
-    View
-</a>
-<a href="/download_pdf/{{ candidate.id }}"
-class="btn btn-secondary btn-sm">
-PDF
-</a>
-                                <a
-                                    href="/shortlist/{{ candidate.id }}"
-                                    class="btn btn-success btn-sm mb-1">
-
-                                    Shortlist
-
-                                </a>
-
-                                <a
-                                    href="/reject/{{ candidate.id }}"
-                                    class="btn btn-danger btn-sm">
-
-                                    Reject
-
-                                </a>
-
-                            </td>
-
-                        </tr>
-
-                    {% endfor %}
-
-                    {% else %}
-
-                        <tr>
-
-                            <td
-                                colspan="5"
-                                class="text-center text-muted py-4">
-
-                                No Candidates Available
-
-                            </td>
-
-                        </tr>
-
-                    {% endif %}
-
-                    </tbody>
-
-                </table>
+                <canvas
+                    id="scoreChart"
+                    height="100">
+                </canvas>
 
             </div>
 
@@ -753,49 +599,31 @@ PDF
 
     </div>
 
-</div>
+    <!-- ================= Pie Chart ================= -->
 
-</div>
-<!-- ================= QUICK ACTIONS ================= -->
+    <div class="col-lg-5 mb-4">
 
-<div class="row mt-4">
+        <div class="card shadow-sm border-0 h-100">
 
-    <div class="col-12">
+            <div class="card-header bg-white">
 
-        <div class="card">
+                <h4 class="section-title mb-0">
 
-            <div class="card-header bg-primary text-white">
+                    <i class="bi bi-pie-chart-fill text-success"></i>
 
-                Quick Actions
+                    Candidate Status Distribution
+
+                </h4>
 
             </div>
 
             <div class="card-body text-center">
 
-                <a
-                    href="/export"
-                    class="btn btn-warning me-2 mb-2">
+                <div style="height:300px; max-width:350px; margin:auto;">
 
-                    📄 Export CSV
+                    <canvas id="statusChart"></canvas>
 
-                </a>
-
-
-                <a
-                    href="/clear_db"
-                    class="btn btn-danger me-2 mb-2">
-
-                    🗑 Clear Database
-
-                </a>
-
-                <a
-                    href="/logout"
-                    class="btn btn-secondary mb-2">
-
-                    🚪 Logout
-
-                </a>
+                </div>
 
             </div>
 
@@ -805,13 +633,412 @@ PDF
 
 </div>
 
-<!-- ================= FOOTER ================= -->
 
-<footer class="text-center mt-4 mb-3">
+<!-- ================= Chart JS ================= -->
 
-    <small class="text-muted">
+<script>
 
-        AI Resume Screening Dashboard © 2026
+const scoreCtx =
+document.getElementById('scoreChart');
+
+new Chart(scoreCtx,{
+
+type:'bar',
+
+data:{
+
+labels:[
+{% for candidate in candidates %}
+'{{ candidate.name }}',
+{% endfor %}
+],
+
+datasets:[{
+
+label:'Match Score',
+
+data:[
+{% for candidate in candidates %}
+{{ candidate.score }},
+{% endfor %}
+],
+
+backgroundColor:'#0d6efd',
+
+borderRadius:10
+
+}]
+
+},
+
+options:{
+
+responsive:true,
+
+plugins:{
+
+legend:{
+
+display:false
+
+}
+
+},
+
+scales:{
+
+y:{
+
+beginAtZero:true,
+
+max:100
+
+}
+
+}
+
+}
+
+});
+
+const statusCtx =
+document.getElementById('statusChart');
+
+new Chart(statusCtx,{
+
+type:'pie',
+
+data:{
+
+labels:[
+
+'Shortlisted',
+
+'Pending',
+
+'Rejected'
+
+],
+
+datasets:[{
+
+data:[
+
+{{ shortlisted }},
+
+{{ pending }},
+
+{{ rejected }}
+
+],
+
+backgroundColor:[
+
+'#198754',
+
+'#ffc107',
+
+'#dc3545'
+
+]
+
+}]
+
+},
+
+options:{
+
+responsive:true
+
+}
+
+});
+
+</script>
+<!-- ================= Latest Resume Analysis ================= -->
+
+<div class="card mb-5">
+
+    <div class="card-header bg-white py-3">
+
+        <h4 class="section-title mb-0">
+
+            <i class="bi bi-file-earmark-text-fill text-primary"></i>
+
+            Latest Resume Analysis
+
+        </h4>
+
+    </div>
+
+    <div class="card-body">
+
+    {% if latest_report %}
+
+    <div class="row">
+
+        <!-- Candidate Details -->
+
+        <div class="col-lg-6">
+
+            <h5 class="fw-bold mb-3">
+
+                Candidate Information
+
+            </h5>
+
+            <table class="table table-borderless">
+
+                <tr>
+
+                    <th width="35%">
+
+                        Name
+
+                    </th>
+
+                    <td>
+
+                        {{ latest_report.name }}
+
+                    </td>
+
+                </tr>
+
+                <tr>
+
+                    <th>
+
+                        Email
+
+                    </th>
+
+                    <td>
+
+                        {{ latest_report.email }}
+
+                    </td>
+
+                </tr>
+
+                <tr>
+
+                    <th>
+
+                        Phone
+
+                    </th>
+
+                    <td>
+
+                        {{ latest_report.phone }}
+
+                    </td>
+
+                </tr>
+
+                <tr>
+
+                    <th>
+
+                        Match Score
+
+                    </th>
+
+                    <td>
+
+                        <span class="badge bg-primary fs-6">
+
+                            {{ latest_report.score }}%
+
+                        </span>
+
+                    </td>
+
+                </tr>
+
+                <tr>
+
+                    <th>
+
+                        Similarity
+
+                    </th>
+
+                    <td>
+
+                        <span class="badge bg-success fs-6">
+
+                            {{ latest_report.similarity_score }}%
+
+                        </span>
+
+                    </td>
+
+                </tr>
+
+            </table>
+
+        </div>
+
+        <!-- Skills -->
+
+        <div class="col-lg-6">
+
+            <h5 class="fw-bold">
+
+                Matched Skills
+
+            </h5>
+
+            <div class="mb-4">
+
+                {% for skill in latest_report.matched %}
+
+                <span class="badge bg-success badge-skill">
+
+                    {{ skill }}
+
+                </span>
+
+                {% endfor %}
+
+            </div>
+
+            <h5 class="fw-bold">
+
+                Missing Skills
+
+            </h5>
+
+            <div>
+
+                {% for skill in latest_report.missing %}
+
+                <span class="badge bg-danger badge-skill">
+
+                    {{ skill }}
+
+                </span>
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <hr>
+
+    <!-- Interview Questions -->
+
+    <h5 class="fw-bold mb-3">
+
+        Recommended Interview Questions
+
+    </h5>
+
+    <div class="list-group">
+
+        {% for skill, questions in latest_report.questions.items() %}
+
+            {% for question in questions %}
+
+            <div class="list-group-item">
+
+                <strong>{{ skill }}</strong>
+
+                <br>
+
+                {{ question }}
+
+            </div>
+
+            {% endfor %}
+
+        {% endfor %}
+
+    </div>
+
+    {% else %}
+
+    <div class="text-center py-5">
+
+        <i class="bi bi-file-earmark-text"
+           style="font-size:70px;color:#c4c4c4;"></i>
+
+        <h5 class="mt-3">
+
+            No Resume Analyzed Yet
+
+        </h5>
+
+        <p class="text-muted">
+
+            Upload a resume to see the complete AI analysis.
+
+        </p>
+
+    </div>
+
+    {% endif %}
+
+    </div>
+
+</div>
+
+<!-- ================= Quick Actions ================= -->
+
+<div class="card mb-5">
+
+    <div class="card-body text-center">
+
+        <h5 class="fw-bold mb-4">
+
+            Quick Actions
+
+        </h5>
+
+        <a
+        href="/export_csv"
+        class="btn btn-success btn-lg me-3">
+
+            <i class="bi bi-download"></i>
+
+            Export CSV
+
+        </a>
+
+        <a
+        href="/clear_db"
+        class="btn btn-danger btn-lg"
+        onclick="return confirm('Clear entire candidate database?')">
+
+            <i class="bi bi-trash-fill"></i>
+
+            Clear Database
+
+        </a>
+
+    </div>
+
+</div>
+<!-- ================= Footer ================= -->
+
+<footer class="text-center text-muted mt-5 mb-4">
+
+    <hr>
+
+    <p class="mb-1">
+
+        AI Resume Screening System
+
+    </p>
+
+    <small>
+
+        Developed by Dhanyashree PS © 2026
 
     </small>
 
@@ -819,165 +1046,9 @@ PDF
 
 </div>
 
-<!-- ================= CHART ================= -->
+<!-- Bootstrap -->
 
-<script>
-
-const labels = {{ labels|tojson }};
-const scores = {{ scores|tojson }};
-
-const ctx = document.getElementById("scoreChart");
-
-new Chart(ctx, {
-
-    type: "bar",
-
-    data: {
-
-        labels: labels,
-
-        datasets: [{
-
-            label: "Match Score",
-
-            data: scores,
-
-            backgroundColor: [
-
-                "#0d6efd",
-
-                "#198754",
-
-                "#ffc107",
-
-                "#dc3545",
-
-                "#6f42c1",
-
-                "#20c997",
-
-                "#fd7e14",
-
-                "#0dcaf0",
-
-                "#6610f2",
-
-                "#6c757d"
-
-            ],
-
-            borderRadius: 8,
-
-            borderSkipped: false
-
-        }]
-
-    },
-
-    options: {
-
-        responsive: true,
-
-        maintainAspectRatio: false,
-
-        plugins: {
-
-            legend: {
-
-                display: false
-
-            }
-
-        },
-
-        scales: {
-
-            y: {
-
-                beginAtZero: true,
-
-                max: 100,
-
-                ticks: {
-
-                    stepSize: 10
-
-                }
-
-            }
-
-        }
-
-    }
-
-});
-
-</script>
-
-<script>
-
-const statusChart = new Chart(
-    document.getElementById("statusChart"),
-    {
-
-        type: "pie",
-
-        data: {
-
-            labels: [
-                "Shortlisted",
-                "Pending",
-                "Rejected"
-            ],
-
-            datasets: [{
-
-                data: [
-                    {{ shortlisted }},
-                    {{ pending }},
-                    {{ rejected }}
-                ]
-
-            }]
-
-        },
-
-        options: {
-
-            responsive: true,
-
-            plugins: {
-
-                legend: {
-
-                    position: "bottom"
-
-                }
-
-            }
-
-        }
-
-    }
-
-);
-
-</script>
-<script>
-
-document.querySelector("form").addEventListener("submit", function () {
-
-    const btn = document.getElementById("analyzeBtn");
-
-    btn.disabled = true;
-
-    btn.innerHTML = `
-        <span class="spinner-border spinner-border-sm"></span>
-        Analyzing Resume...
-    `;
-
-});
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </script>
 
 <script>
@@ -986,32 +1057,43 @@ const dropArea = document.getElementById("drop-area");
 const fileInput = document.getElementById("resume");
 const fileName = document.getElementById("file-name");
 
-dropArea.addEventListener("dragover", function(e){
-    e.preventDefault();
-    dropArea.classList.add("bg-light");
+dropArea.addEventListener("click", () => {
+    fileInput.click();
 });
 
-dropArea.addEventListener("dragleave", function(){
-    dropArea.classList.remove("bg-light");
+dropArea.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    dropArea.classList.add("border-primary","bg-light");
 });
 
-dropArea.addEventListener("drop", function(e){
+dropArea.addEventListener("dragleave", () => {
+    dropArea.classList.remove("border-primary","bg-light");
+});
+
+dropArea.addEventListener("drop", (e) => {
+
     e.preventDefault();
 
-    dropArea.classList.remove("bg-light");
+    dropArea.classList.remove("border-primary","bg-light");
 
-    fileInput.files = e.dataTransfer.files;
+    const dt = new DataTransfer();
+
+    dt.items.add(e.dataTransfer.files[0]);
+
+    fileInput.files = dt.files;
 
     fileName.innerHTML =
-        "Selected File: " + e.dataTransfer.files[0].name;
+        "📄 " + fileInput.files[0].name;
+
 });
 
-fileInput.addEventListener("change", function(){
+fileInput.addEventListener("change", () => {
 
-    if(fileInput.files.length>0){
+    if(fileInput.files.length){
 
         fileName.innerHTML =
-            "Selected File: " + fileInput.files[0].name;
+        "📄 " + fileInput.files[0].name;
+
     }
 
 });
@@ -1020,3 +1102,6 @@ fileInput.addEventListener("change", function(){
 </body>
 
 </html>
+
+
+

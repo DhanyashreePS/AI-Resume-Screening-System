@@ -86,23 +86,29 @@ def home():
 
     rows = get_all_candidates()
 
+    print(rows)
+
+    for row in rows:
+        print(row)
+        print(len(row))
+
     jobs_posted = len(jobs)
 
     resumes_screened = len(rows)
 
     shortlisted = sum(
-        1 for row in rows
-        if row[6] == "Shortlisted"
+    1 for row in rows
+    if row[11] == "Shortlisted"
     )
 
     pending = sum(
         1 for row in rows
-        if row[6] == "Pending"
+        if row[11] == "Pending"
     )
 
     rejected = sum(
         1 for row in rows
-        if row[6] == "Rejected"
+        if row[11] == "Rejected"
     )
     recent_jobs = get_recent_jobs()
     jobs = get_all_jobs()
@@ -288,6 +294,10 @@ def candidate_profile(id):
     if row is None:
         return "Candidate not found"
 
+    print("Database Row:")
+    print(row)
+    print("Length:", len(row))
+
     candidate = {
     "id": row[0],
     "name": row[1],
@@ -331,8 +341,9 @@ def dashboard():
     "name": row[1],
     "email": row[2],
     "phone": row[3],
-    "skills": row[4].split(","),
+    "skills": row[4].split(",") if row[4] else [],
     "score": row[5],
+    "similarity_score": row[7],   # <-- IMPORTANT
     "status": row[11]
 })
     if search:
@@ -370,6 +381,8 @@ def dashboard():
     )
     
     job = get_job_by_id(job_id) if job_id else None
+    
+    has_candidates = len(candidates) > 0
 
     return render_template(
     "dashboard.html",
@@ -381,14 +394,9 @@ def dashboard():
     pending=pending,
     rejected=rejected,
     latest_report=latest_report,
-    job=job
+    job=job,
+    has_candidates=has_candidates
 ) 
-@app.route("/get_job/<int:id>")
-def get_job(id):
-
-    job = get_job_by_id(id)
-
-    return jsonify(job)
 
 
 @app.route("/update_job/<int:id>", methods=["POST"])
@@ -489,20 +497,23 @@ def download_pdf(id):
 
     if row is None:
         return "Candidate not found"
-
+    print("===== DOWNLOAD PDF DEBUG =====")
+    print("Executing file:", __file__)
+    print("Matched line should use row[8]")
     candidate = {
-        "id": row[0],
-        "name": row[1],
-        "email": row[2],
-        "phone": row[3],
-        "skills": row[4].split(","),
-        "score": row[5],
-        "similarity_score": row[6],
-        "matched": row[7].split(",") if row[7] else [],
-        "missing": row[8].split(",") if row[8] else [],
-        "questions": json.loads(row[9]) if row[9] else {},
-        "status": row[10]
-    }
+    "id": row[0],
+    "name": row[1],
+    "email": row[2],
+    "phone": row[3],
+    "skills": row[4].split(",") if row[4] else [],
+    "score": row[5],
+    "job_id": row[6],
+    "similarity_score": row[7],
+    "matched": row[8].split(",") if row[8] else [],
+    "missing": row[9].split(",") if row[9] else [],
+    "questions": json.loads(row[10]) if row[10] else {},
+    "status": row[11]
+}
     # Recommendation Logic
 
     if candidate["score"] >= 80:

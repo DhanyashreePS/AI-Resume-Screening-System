@@ -573,3 +573,110 @@ def update_job(
     conn.commit()
 
     conn.close()
+    
+import sqlite3
+from datetime import datetime
+
+DB_PATH = "data/resume_screening.db"
+
+def create_users_table():
+
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS users(
+
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+            company_name TEXT NOT NULL,
+
+            hr_name TEXT NOT NULL,
+
+            email TEXT UNIQUE NOT NULL,
+
+            phone TEXT,
+
+            password TEXT NOT NULL,
+
+            created_date TEXT
+        )
+    """)
+
+    conn.commit()
+    conn.close()
+create_users_table()
+
+def email_exists(email):
+
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "SELECT id FROM users WHERE email=?",
+        (email,)
+    )
+
+    user = cursor.fetchone()
+
+    conn.close()
+
+    return user is not None
+def create_user(company_name,
+                hr_name,
+                email,
+                phone,
+                password):
+
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    cursor.execute("""
+
+        INSERT INTO users(
+            company_name,
+            hr_name,
+            email,
+            phone,
+            password,
+            created_date
+        )
+
+        VALUES(?,?,?,?,?,?)
+
+    """,
+
+    (
+
+        company_name,
+        hr_name,
+        email,
+        phone,
+        password,
+        datetime.now().strftime("%d %b %Y")
+
+    ))
+
+    conn.commit()
+    conn.close()
+
+
+def get_user_by_email(email):
+
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+
+    cursor = conn.cursor()
+
+    cursor.execute(
+
+        "SELECT * FROM users WHERE email=?",
+
+        (email,)
+    )
+
+    user = cursor.fetchone()
+
+    conn.close()
+
+    return user

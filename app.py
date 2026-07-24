@@ -34,7 +34,10 @@ from utils.database import (
     get_all_candidates,
     get_candidate_by_id
 )
-
+from utils.database import get_user_by_email
+from werkzeug.security import generate_password_hash, check_password_hash
+from utils.database import create_user
+from utils.database import email_exists
 from utils.database import get_candidate_count
 app = Flask(__name__)
 
@@ -122,6 +125,8 @@ def home():
     print("Jobs Posted:", jobs_posted)
     print("Resumes Screened:", resumes_screened)
     print("Rows:", rows)
+    hr_name = session.get("hr_name")
+    company = session.get("company_name")
 
 
     return render_template(
@@ -129,7 +134,9 @@ def home():
         jobs_posted=jobs_posted,
         resumes_screened=resumes_screened,
         shortlisted=shortlisted,        
-        recent_jobs=recent_jobs
+        recent_jobs=recent_jobs,
+        hr_name=hr_name,
+        company=company
 
     )
     return redirect("/home")
@@ -245,6 +252,38 @@ def jobs():
     
 print(get_recent_jobs())
 @app.route("/create_job", methods=["POST"])
+
+
+@app.route("/register", methods=["GET", "POST"])
+def register():
+
+    if request.method == "POST":
+
+        company = request.form["company_name"]
+        hr = request.form["hr_name"]
+        email = request.form["email"]
+        phone = request.form["phone"]
+
+        password = generate_password_hash(
+            request.form["password"]
+        )
+
+        if email_exists(email):
+
+            return "Email already registered."
+
+        create_user(
+            company,
+            hr,
+            email,
+            phone,
+            password
+        )
+
+        return redirect("/login")
+
+    return render_template("register.html")
+
 def create_job():
 
     save_job(
@@ -554,18 +593,26 @@ def login():
 
     if request.method == "POST":
 
-        username = request.form["username"]
+        email = request.form["email"]
         password = request.form["password"]
 
-        if username == "Dhanya" and password == "2006":
+        user = get_user_by_email(email)
+
+        if user and check_password_hash(user["password"], password):
 
             session["logged_in"] = True
 
-            return redirect("/home")   # <-- Changed
+            session["user_id"] = user["id"]
+
+            session["company_name"] = user["company_name"]
+
+            session["hr_name"] = user["hr_name"]
+
+            return redirect("/home")
 
         else:
 
-            return "Invalid Username or Password"
+            return "Invalid Email or Password"
 
     return render_template("login.html")
 @app.route("/clear_db")
